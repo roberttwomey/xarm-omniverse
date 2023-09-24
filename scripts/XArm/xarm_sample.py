@@ -37,6 +37,12 @@ class XArmSample(BaseSample):
         self.min_detection_range = None
         self.max_detection_range = None
 
+        self._safe_zone = [
+            (0.3, -0.3, 0.3), # back bottom right 
+            (0.5, 0.3, 0.625) # top front left
+                           ]
+
+
     def set_xarm_version(self, xarm_version):
         self._xarm_version = xarm_version
         if self._xarm_version == 5:
@@ -126,47 +132,64 @@ class XArmSample(BaseSample):
                 self.xarm_socket.txconn.close()
                 self.xarm_socket.txconn = None
 
-        face_in_range = False
-        if self.xarm_socket.cam_to_nose and self.xarm_socket.face_direction:
-            cam_position, cam_orientation = self._xarm.end_effector.get_world_pose()
+        # face_in_range = False
+        # if self.xarm_socket.cam_to_nose and self.xarm_socket.face_direction:
+        #     cam_position, cam_orientation = self._xarm.end_effector.get_world_pose()
             
-            nose_distance_from_camera = np.linalg.norm(self.xarm_socket.cam_to_nose)
-            carb.log_error(str(self.min_detection_range) + " " + str(self.max_detection_range) + " " + str(nose_distance_from_camera))
-            face_in_range = nose_distance_from_camera >= self.min_detection_range and nose_distance_from_camera <= self.max_detection_range
+        #     nose_distance_from_camera = np.linalg.norm(self.xarm_socket.cam_to_nose)
+        #     carb.log_error(str(self.min_detection_range) + " " + str(self.max_detection_range) + " " + str(nose_distance_from_camera))
+        #     face_in_range = nose_distance_from_camera >= self.min_detection_range and nose_distance_from_camera <= self.max_detection_range
 
-        current_time = time.time()
-        if face_in_range:
-            carb.log_error("here")
-            cam_orientation = Quaternion(cam_orientation)
-            nose_position = cam_orientation.rotate(self.xarm_socket.cam_to_nose) + cam_position
-            nose_direction = cam_orientation.rotate(self.xarm_socket.face_direction)
-            nose_direction /= np.linalg.norm(nose_direction)
+        # current_time = time.time()
+        # if face_in_range:
+        #     carb.log_error("here")
+        #     cam_orientation = Quaternion(cam_orientation)
+        #     nose_position = cam_orientation.rotate(self.xarm_socket.cam_to_nose) + cam_position
+        #     nose_direction = cam_orientation.rotate(self.xarm_socket.face_direction)
+        #     nose_direction /= np.linalg.norm(nose_direction)
 
-            # update position of target from camera feed
+        #     # update position of target from camera feed
+        #     cube = self._world.scene.get_object("target")
+
+        #     if nose_distance_from_camera < self.min_detection_range:
+        #         newpose = nose_position + nose_direction * self.min_detection_range
+        #     elif nose_distance_from_camera > self.max_detection_range:
+        #         newpose = nose_position + nose_direction * self.max_detection_range
+        #     else:
+        #         newpose = nose_position + nose_direction * nose_distance_from_camera
+
+        #     range = np.linalg.norm(newpose)
+        #     if range < self._min_range:
+        #         newpose = newpose / np.linalg.norm(newpose) * self._min_range
+        #     elif range > self._max_range:
+        #         newpose = newpose / np.linalg.norm(newpose) * self._max_range
+
+        #     newpose = [newpose[0], newpose[1], max(newpose[2], self._min_height)]
+
+        #     updated_quaternion = self._get_new_target_orientation(newpose)
+            
+        #     cube.set_world_pose(np.array(newpose), updated_quaternion)
+        #     self.xarm_socket.dx = None
+        #     self.xarm_socket.dy = None
+
+        #     self._last_face_seen_time = current_time
+        if self.xarm_socket.face_direction:
+            current_time = time.time()
             cube = self._world.scene.get_object("target")
+            pos, _ = cube.get_world_pose()
 
-            if nose_distance_from_camera < self.min_detection_range:
-                newpose = nose_position + nose_direction * self.min_detection_range
-            elif nose_distance_from_camera > self.max_detection_range:
-                newpose = nose_position + nose_direction * self.max_detection_range
-            else:
-                newpose = nose_position + nose_direction * nose_distance_from_camera
+            newpose = [ pos[0], pos[1]+self.xarm_socket.dx, pos[2]+self.xarm_socket.dy]
+            newpose[1] = np.clip(newpose[1], self._safe_zone[0][1], self._safe_zone[1][1])
+            newpose[2] = np.clip(newpose[2], self._safe_zone[0][2], self._safe_zone[1][2])
+            print("pose", pos, "->", newpose, end="")
+            cube.set_world_pose(np.array(newpose))
+            print("set.")
 
-            range = np.linalg.norm(newpose)
-            if range < self._min_range:
-                newpose = newpose / np.linalg.norm(newpose) * self._min_range
-            elif range > self._max_range:
-                newpose = newpose / np.linalg.norm(newpose) * self._max_range
-
-            newpose = [newpose[0], newpose[1], max(newpose[2], self._min_height)]
-
-            updated_quaternion = self._get_new_target_orientation(newpose)
-            
-            cube.set_world_pose(np.array(newpose), updated_quaternion)
             self.xarm_socket.dx = None
             self.xarm_socket.dy = None
 
             self._last_face_seen_time = current_time
+
         elif self.rand_target_enabled and ( \
                 self._xarm_task.task_achieved or \
                 current_time > self._last_rand_target_time + self._last_rand_target_timeout \

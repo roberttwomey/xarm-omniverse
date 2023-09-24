@@ -105,13 +105,34 @@ We use these ports by default
 Install the [xArm Python SDK](https://github.com/xArm-Developer/xArm-Python-SDK).
 
 ```
+conda create -n xarm python=3
+conda activate xarm
+conda install -c conda-forge opencv
+pip install mediapipe
+```
+
+```
  cd ~/work
  git clone https://github.com/xArm-Developer/xArm-Python-SDK
  cd xArm-Python-SDK
- sudo python setup.py install
+ python setup.py install
 ```
 
-You should be good to go.
+Install cameractrls https://github.com/soyersoyer/cameractrls
+
+```
+sudo snap install cameractrls
+snap connect cameractrls:camera
+
+```
+
+You should be good to go:
+```
+cd ~/work/xarm-omniverse/scripts/XArm/client
+python face-pose-client.py --no-socket
+```
+
+
 
 
 <!-- MARKDOWN LINKS & IMAGES -->

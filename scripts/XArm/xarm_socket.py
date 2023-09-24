@@ -62,30 +62,44 @@ class XArmSocket():
 
             while True:
                 data = self.rxconn.recv(1024)
+                # if data:
+                #     message = data.decode()
+                #     # carb.log_error("received:" + str(type(message)) + message)
+                #     cam_to_nose = [0, 0, 0]
+                #     face_direction = [0, 0, 0]
+                #     try:
+                #         cam_to_nose[0], cam_to_nose[1], cam_to_nose[2], face_direction[0], face_direction[1], face_direction[2], dx, dy = ast.literal_eval(message)
+                #     except ValueError:
+                #         self.cam_to_nose = None
+                #         self.face_direction = None
+                #         self.dx = None
+                #         self.dy = None
+                #     else: 
+                #     # print("received:", x, y, z, dx, dy, dist)
+                #         weight = 0.1
+                #         self.cam_to_nose = cam_to_nose
+                #         self.face_direction = face_direction
+                #         self.dx = weight*dx
+                #         self.dy = weight*dy
+                # else:
+                #     self.cam_to_nose = None
+                #     self.face_direction = None
+                #     self.dx = None
+                #     self.dy = None
+
                 if data:
                     message = data.decode()
-                    # carb.log_error("received:" + str(type(message)) + message)
-                    cam_to_nose = [0, 0, 0]
-                    face_direction = [0, 0, 0]
-                    try:
-                        cam_to_nose[0], cam_to_nose[1], cam_to_nose[2], face_direction[0], face_direction[1], face_direction[2], dx, dy = ast.literal_eval(message)
-                    except ValueError:
-                        self.cam_to_nose = None
-                        self.face_direction = None
-                        self.dx = None
-                        self.dy = None
-                    else: 
-                    # print("received:", x, y, z, dx, dy, dist)
-                        weight = 0.1
-                        self.cam_to_nose = cam_to_nose
-                        self.face_direction = face_direction
-                        self.dx = weight*dx
-                        self.dy = weight*dy
+                    # print("received:", type(message), message)
+                    x, y, z, dx, dy = ast.literal_eval(message)
+                    print("received:", x, y, z, dx, dy)
+                    weight = 0.05
+                    self.dx = weight*dx
+                    self.dy = weight*dy
+                    # self.dx = dx
+                    # self.dy = dy
+                    self.face_direction = [x, y, z]
                 else:
-                    self.cam_to_nose = None
                     self.face_direction = None
-                    self.dx = None
-                    self.dy = None
 
 
     def shut_down_socket(self):
