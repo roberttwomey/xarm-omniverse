@@ -176,9 +176,10 @@ class XArmSample(BaseSample):
         if self.xarm_socket.face_direction:
             current_time = time.time()
             cube = self._world.scene.get_object("target")
-            pos, _ = cube.get_world_pose()
-
+            pos, qrot = cube.get_world_pose()
+            print(qrot)
             newpose = [ pos[0], pos[1]+self.xarm_socket.dx, pos[2]+self.xarm_socket.dy]
+
             newpose[1] = np.clip(newpose[1], self._safe_zone[0][1], self._safe_zone[1][1])
             newpose[2] = np.clip(newpose[2], self._safe_zone[0][2], self._safe_zone[1][2])
             print("pose", pos, "->", newpose, end="")

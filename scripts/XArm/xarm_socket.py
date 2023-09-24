@@ -17,6 +17,10 @@ class XArmSocket():
         self.face_direction = None
         self.dx = None
         self.dy = None
+        self.rx = None
+        self.ry = None
+        self.rz = None
+
 
         # threads
         self.txsocket_thread = None
@@ -91,10 +95,13 @@ class XArmSocket():
                     message = data.decode()
                     # print("received:", type(message), message)
                     x, y, z, dx, dy = ast.literal_eval(message)
-                    print("received:", x, y, z, dx, dy)
+                    # print("received:", x, y, z, dx, dy)
                     weight = 0.05
                     self.dx = weight*dx
                     self.dy = weight*dy
+                    self.rx = x
+                    self.ry = y
+                    self.rz = z
                     # self.dx = dx
                     # self.dy = dy
                     self.face_direction = [x, y, z]
