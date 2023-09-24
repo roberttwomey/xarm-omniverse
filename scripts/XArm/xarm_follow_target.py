@@ -17,7 +17,10 @@ class XArmFollowTarget(tasks.FollowTarget):
         """
 
     def __init__(self, xarm_version: int = 7):
-        super().__init__(name="xarm_follow_target_task", target_position=np.array([0.3, 0.0, 0.5]) / get_stage_units(), offset=None)
+        # super().__init__(name="xarm_follow_target_task", target_position=np.array([0.3, 0.0, 0.5]) / get_stage_units(), offset=None)
+
+        # initialize target directly below xarm hand at home position
+        super().__init__(name="xarm_follow_target_task", target_position=np.array([0.20599, 0.0, 0.1]) / get_stage_units(), offset=None)
         self._goal_position = np.array([0, 0, 0])
         self.task_achieved = False
         self.xarm_version = xarm_version

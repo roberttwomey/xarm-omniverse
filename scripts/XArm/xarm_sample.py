@@ -6,6 +6,7 @@ import numpy as np
 import time
 import carb
 import omni.kit.pipapi
+
 omni.kit.pipapi.install("pyquaternion")
 
 from pyquaternion import Quaternion
@@ -19,6 +20,7 @@ class XArmSample(BaseSample):
 
         # sending position data to arm
         self.xarm_socket = XArmSocket()
+        self.stream_joints = False
 
         self._max_range = None
         self._min_range = None
@@ -87,6 +89,15 @@ class XArmSample(BaseSample):
         else:
             world.remove_physics_callback("sim_step")
         return
+    
+    async def _on_stream_joints_event_async(self, val):
+        if val:
+            # clicked "Start" stream joints
+            self.stream_joints = True
+        else:
+            # clicked "Stop"
+            self.stream_joints = False
+        return
 
     def _on_follow_target_simulation_step(self, step_size):
         observations = self._world.get_observations()
@@ -101,7 +112,7 @@ class XArmSample(BaseSample):
         ) # Solution from Nvidia Live Session 1:23:00
         self._articulation_controller.apply_action(actions)
 
-        if self.xarm_socket.txconn:
+        if self.xarm_socket.txconn and self.stream_joints:
             try: 
                 sendData = str(self._xarm.get_joint_positions().tolist())
                 #print("joints:", sendData)
