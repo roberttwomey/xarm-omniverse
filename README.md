@@ -101,6 +101,19 @@ Run
 ```
 We use these ports by default 
 
+# Setup for Robot Connection
+Install the [xArm Python SDK](https://github.com/xArm-Developer/xArm-Python-SDK).
+
+```
+ cd ~/work
+ git clone https://github.com/xArm-Developer/xArm-Python-SDK
+ cd xArm-Python-SDK
+ sudo python setup.py install
+```
+
+You should be good to go.
+
+
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/MatthewDZane/XArmFollowTarget.svg?style=for-the-badge

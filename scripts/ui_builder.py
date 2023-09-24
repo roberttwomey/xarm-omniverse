@@ -33,6 +33,7 @@ class UIBuilder:
 
         self._buttons = None
         self._task_ui_elements = None
+        self._robot_ui_elements = 
 
         # Get access to the timeline to control stop/pause/play programmatically
         self._timeline = omni.timeline.get_timeline_interface()

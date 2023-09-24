@@ -3,8 +3,8 @@ import math
 import time
 
 mysocket = socket.socket()
-# mysocket.connect(('127.0.0.1',12345))
-mysocket.connect(('192.168.4.206',12345))
+mysocket.connect(('127.0.0.1',12345))
+# mysocket.connect(('192.168.4.206',12345))
 
 
 """
