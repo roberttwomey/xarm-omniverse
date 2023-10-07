@@ -113,6 +113,8 @@ try:
 				# solve PnP
 				success, rot_vec, trans_vec = cv2.solvePnP(face_3d, face_2d, cam_matrix, dist_matrix)
 
+				print(rot_vec, trans_vec)
+
 				# get rotatinal matrix
 				rmat, jac = cv2.Rodrigues(rot_vec)
 

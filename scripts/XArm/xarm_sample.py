@@ -140,7 +140,7 @@ class XArmSample(BaseSample):
         #     carb.log_error(str(self.min_detection_range) + " " + str(self.max_detection_range) + " " + str(nose_distance_from_camera))
         #     face_in_range = nose_distance_from_camera >= self.min_detection_range and nose_distance_from_camera <= self.max_detection_range
 
-        # current_time = time.time()
+        current_time = time.time()
         # if face_in_range:
         #     carb.log_error("here")
         #     cam_orientation = Quaternion(cam_orientation)
@@ -216,6 +216,7 @@ class XArmSample(BaseSample):
                 cube.set_world_pose(np.array(randpos), updated_quaternion)
 
                 self._last_rand_target_time = time.time()
+
         self.xarm_socket.cam_to_nose=None
         self.xarm_socket.face_direction=None
         return

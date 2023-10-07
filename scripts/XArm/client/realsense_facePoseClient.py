@@ -160,7 +160,10 @@ while True:
 
     # Process images
     depth_image = np.asanyarray(aligned_depth_frame.get_data())
-    depth_image_flipped = cv2.flip(depth_image,1)
+    
+    depth_image_flipped = cv2.flip(depth_image, -1) # upside down mount  
+    # depth_image_flipped = cv2.flip(depth_image,1)
+
     color_image = np.asanyarray(color_frame.get_data())
 
     depth_image_3d = np.dstack((depth_image,depth_image,depth_image)) #Depth image is 1 channel, while color image is 3
@@ -168,9 +171,14 @@ while True:
 
     depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
-    images = cv2.flip(background_removed,1)
+    # images = cv2.flip(background_removed,1)
+    
+    # realsense, upside down mount
+    images = cv2.flip(background_removed,-1)
+
     # images = background_removed
-    color_image = cv2.flip(color_image,1)
+    color_image = cv2.flip(color_image,-1)
+    # color_image = cv2.flip(color_image,1)
     color_images_rgb = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
     
     #added from face-pose client
