@@ -92,6 +92,7 @@ class XArmSocket():
                 #     self.dy = None
 
                 if data:
+                    # RGB Camera
                     message = data.decode()
                     # print("received:", type(message), message)
                     x, y, z, dx, dy = ast.literal_eval(message)
