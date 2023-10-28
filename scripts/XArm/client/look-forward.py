@@ -20,7 +20,7 @@ import traceback
 import threading
 
 # IKFast for xarm 7
-import pyikfast
+#import pyikfast
 import numpy as np
 
 """
