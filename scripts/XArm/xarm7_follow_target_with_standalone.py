@@ -69,7 +69,7 @@ def main():
     xarm_socket.start_txsocket()
     xarm_socket.start_rxsocket()
 
-    _safe_zone = [
+    safe_zone = [
         (0.3, -0.3, 0.3), # back bottom right 
         (0.6, 0.3, 0.625) # top front left
                         ]
@@ -119,7 +119,7 @@ def main():
 
             if xarm_socket.txconn and stream_joints:
                 try: 
-                    sendData = str(_xarm.get_joint_positions().tolist())
+                    sendData = str(xarm.get_joint_positions().tolist())
                     #print("joints:", sendData)
                     res = xarm_socket.txconn.send(sendData.encode())
                     if res == 0:
@@ -135,14 +135,14 @@ def main():
 
             if xarm_socket.face_direction:
                     # update position of target from camera feed            
-                cube = _world.scene.get_object("target")
-                pos, qrot = cube.get_world_pose()
+                cube = world.scene.get_object("target")
+                pos, qrot = cube.getworld_pose()
                 print(qrot)
                 newpose = [ pos[0]+xarm_socket.z, pos[1]+xarm_socket.dx, pos[2]+xarm_socket.dy]
 
-                newpose[0] = np.clip(newpose[0], _safe_zone[0][0], _safe_zone[1][0])
-                newpose[1] = np.clip(newpose[1], _safe_zone[0][1], _safe_zone[1][1])
-                newpose[2] = np.clip(newpose[2], _safe_zone[0][2], _safe_zone[1][2])
+                newpose[0] = np.clip(newpose[0], safe_zone[0][0], safe_zone[1][0])
+                newpose[1] = np.clip(newpose[1], safe_zone[0][1], safe_zone[1][1])
+                newpose[2] = np.clip(newpose[2], safe_zone[0][2], safe_zone[1][2])
                 print("pose", pos, "->", newpose, end="")
                 cube.set_world_pose(np.array(newpose))
                 print("set.")
@@ -150,33 +150,33 @@ def main():
                 xarm_socket.dx = None
                 xarm_socket.dy = None
 
-                _last_face_seen_time = current_time
+                last_face_seen_time = current_time
 
             elif rand_target_enabled and ( \
-                _xarm_task.task_achieved or \
-                current_time > _last_rand_target_time + _last_rand_target_timeout \
-                ) and current_time > _last_face_seen_time + _last_face_seen_timeout:
+                xarm_task.task_achieved or \
+                current_time > last_rand_target_time + last_rand_target_timeout \
+                ) and current_time > last_face_seen_time + last_face_seen_timeout:
                 # set random location
-                cube = _world.scene.get_object("target")
+                cube = world.scene.get_object("target")
                 randpos = [
                     np.random.uniform(-1, 1), 
                     np.random.uniform(-1, 1),
                     np.random.uniform(0, 1)
                 ]
                 range = np.linalg.norm(randpos)
-                if range < _min_range:
-                    randpos = randpos / np.linalg.norm(randpos) * _min_range
-                elif range > _max_range:
-                    randpos = randpos / np.linalg.norm(randpos) * _max_range
+                if range < min_range:
+                    randpos = randpos / np.linalg.norm(randpos) * min_range
+                elif range > max_range:
+                    randpos = randpos / np.linalg.norm(randpos) * max_range
 
-                randpos = [randpos[0], randpos[1], max(randpos[2], _min_height)]
+                randpos = [randpos[0], randpos[1], max(randpos[2], min_height)]
 
-                updated_quaternion = _get_new_target_orientation(randpos)
+                updated_quaternion = get_new_target_orientation(randpos)
 
                 print("Setting new target pos:"+str(randpos))
-                cube.set_world_pose(np.array(randpos), updated_quaternion)
+                cube.setworld_pose(np.array(randpos), updated_quaternion)
 
-                _last_rand_target_time = time.time()
+                last_rand_target_time = time.time()
 
         xarm_socket.cam_to_nose=None
         xarm_socket.face_direction=None
