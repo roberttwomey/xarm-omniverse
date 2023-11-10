@@ -17,6 +17,7 @@ class XArmSocket():
         self.face_direction = None
         self.dx = None
         self.dy = None
+        self.z = None
         self.rx = None
         self.ry = None
         self.rz = None
@@ -95,11 +96,12 @@ class XArmSocket():
                     # RGB Camera
                     message = data.decode()
                     # print("received:", type(message), message)
-                    x, y, z, dx, dy = ast.literal_eval(message)
+                    x, y, z, dx, dy, z = ast.literal_eval(message)
                     # print("received:", x, y, z, dx, dy)
                     weight = 0.05
                     self.dx = weight*dx
                     self.dy = weight*dy
+                    self.z = 2.0 * z
                     self.rx = x
                     self.ry = y
                     self.rz = z

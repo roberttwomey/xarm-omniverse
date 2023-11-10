@@ -39,7 +39,7 @@ class XArmSample(BaseSample):
 
         self._safe_zone = [
             (0.3, -0.3, 0.3), # back bottom right 
-            (0.5, 0.3, 0.625) # top front left
+            (0.6, 0.3, 0.625) # top front left
                            ]
 
 
@@ -178,8 +178,9 @@ class XArmSample(BaseSample):
             cube = self._world.scene.get_object("target")
             pos, qrot = cube.get_world_pose()
             print(qrot)
-            newpose = [ pos[0], pos[1]+self.xarm_socket.dx, pos[2]+self.xarm_socket.dy]
+            newpose = [ pos[0]+self.xarm_socket.z, pos[1]+self.xarm_socket.dx, pos[2]+self.xarm_socket.dy]
 
+            newpose[0] = np.clip(newpose[0], self._safe_zone[0][0], self._safe_zone[1][0])
             newpose[1] = np.clip(newpose[1], self._safe_zone[0][1], self._safe_zone[1][1])
             newpose[2] = np.clip(newpose[2], self._safe_zone[0][2], self._safe_zone[1][2])
             print("pose", pos, "->", newpose, end="")
