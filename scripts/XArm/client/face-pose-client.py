@@ -149,14 +149,15 @@ try:
 				# add the text on the image
 				cv2.putText(image, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
 				cv2.putText(image, "x_rot: "+str(np.round(x_rot, 2)), (500, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "y_rot: "+str(np.round(y_rot, 2)), (500, 90), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "z_rot: "+str(np.round(z_rot, 2)), (500, 130), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				cv2.putText(image, "y_rot: "+str(np.round(y_rot, 2)), (500, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				cv2.putText(image, "z_rot: "+str(np.round(z_rot, 2)), (500, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
 				xdiff = 0.5-nose_norm[0]
 				ydiff = 0.5-nose_norm[1]
-				zdist = (400.0 + nose_3d[2])/10.0 # arbitrary offset
-				cv2.putText(image, "xdiff: "+str(np.round(xdiff, 2)), (500, 170), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "ydiff: "+str(np.round(ydiff, 2)), (500, 210), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "zdist: "+str(np.round(zdist, 2)), (500, 240), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				# zdist = 0.030 - ((400.0 + nose_3d[2])/10000.0) # arbitrary offset
+				zdiff = nose_3d[2]/10000.0 + 0.01
+				cv2.putText(image, "xdiff: "+str(np.round(xdiff, 3)), (500, 200), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				cv2.putText(image, "ydiff: "+str(np.round(ydiff, 3)), (500, 250), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				cv2.putText(image, "zdiff: "+str(np.round(zdiff, 3)), (500, 300), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
 
 			end = time.time()
 			totalTime = end-start
@@ -177,9 +178,9 @@ try:
 				try:
 					count += 1
 					if count % 3 == 0:
-						print("sending:", [x_rot, y_rot, z_rot, xdiff, ydiff, zdist])
+						print("sending:", [x_rot, y_rot, z_rot, xdiff, ydiff, zdiff])
 						count = 0
-					sendData = str([x_rot, y_rot, z_rot, xdiff, ydiff, zdist])
+					sendData = str([x_rot, y_rot, z_rot, xdiff, ydiff, zdiff])
 					mysocket.send(sendData.encode())
 				except:
 					pass
