@@ -4,6 +4,8 @@ import omni.isaac.core.tasks as tasks
 from omni.isaac.core.utils.stage import get_stage_units
 import carb
 
+import omni.kit.pipapi
+omni.kit.pipapi.install("pyquaternion")
 from pyquaternion import Quaternion
 
 class XArmFollowTarget(tasks.FollowTarget):

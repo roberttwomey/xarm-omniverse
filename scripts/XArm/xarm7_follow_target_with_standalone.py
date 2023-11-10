@@ -63,7 +63,8 @@ def main():
     articulation_controller = xarm.get_articulation_controller()
 
     xarm_socket = XArmSocket()
-    stream_joints = False
+    stream_joints = True
+    rand_target_enabled = True
 
     xarm_socket.start_txsocket()
     xarm_socket.start_rxsocket()

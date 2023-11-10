@@ -5,10 +5,9 @@ from .xarm_socket import XArmSocket
 import numpy as np
 import time
 import carb
+
 import omni.kit.pipapi
-
 omni.kit.pipapi.install("pyquaternion")
-
 from pyquaternion import Quaternion
 
 class XArmSample(BaseSample):
