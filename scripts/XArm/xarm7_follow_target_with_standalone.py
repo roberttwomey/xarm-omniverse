@@ -64,7 +64,7 @@ def main():
 
     xarm_socket = XArmSocket()
     stream_joints = True
-    rand_target_enabled = True
+    rand_target_enabled = False
 
     xarm_socket.start_txsocket()
     xarm_socket.start_rxsocket()
@@ -136,16 +136,16 @@ def main():
             if xarm_socket.face_direction:
                     # update position of target from camera feed            
                 cube = world.scene.get_object("target")
-                pos, qrot = cube.getworld_pose()
-                print(qrot)
+                pos, qrot = cube.get_world_pose()
+                # print(qrot)
                 newpose = [ pos[0]+xarm_socket.z, pos[1]+xarm_socket.dx, pos[2]+xarm_socket.dy]
 
                 newpose[0] = np.clip(newpose[0], safe_zone[0][0], safe_zone[1][0])
                 newpose[1] = np.clip(newpose[1], safe_zone[0][1], safe_zone[1][1])
                 newpose[2] = np.clip(newpose[2], safe_zone[0][2], safe_zone[1][2])
-                print("pose", pos, "->", newpose, end="")
+                # print("pose", pos, "->", newpose, end="")
                 cube.set_world_pose(np.array(newpose))
-                print("set.")
+                # print("set.")
 
                 xarm_socket.dx = None
                 xarm_socket.dy = None
@@ -174,9 +174,27 @@ def main():
                 updated_quaternion = get_new_target_orientation(randpos)
 
                 print("Setting new target pos:"+str(randpos))
-                cube.setworld_pose(np.array(randpos), updated_quaternion)
+                cube.set_world_pose(np.array(randpos), updated_quaternion)
 
                 last_rand_target_time = time.time()
+                
+            elif current_time > last_face_seen_time + last_face_seen_timeout:
+                cube = world.scene.get_object("target")
+                pos, qrot = cube.get_world_pose()
+
+                a = 0.97
+                b = 1.0-a
+                newpose = [ 
+                    a*pos[0]+b*xarm_task.target_start[0], 
+                    a*pos[1]+b*xarm_task.target_start[1],
+                    a*pos[2]+b*xarm_task.target_start[2]
+                    ]
+                
+                newpose[0] = np.clip(newpose[0], safe_zone[0][0], safe_zone[1][0])
+                newpose[1] = np.clip(newpose[1], safe_zone[0][1], safe_zone[1][1])
+                newpose[2] = np.clip(newpose[2], safe_zone[0][2], safe_zone[1][2])
+                
+                cube.set_world_pose(np.array(newpose))
 
         xarm_socket.cam_to_nose=None
         xarm_socket.face_direction=None

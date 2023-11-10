@@ -26,8 +26,11 @@ class XArmFollowTarget(tasks.FollowTarget):
         # super().__init__(name="xarm_follow_target_task", target_position=np.array([0.20599, 0.0, 0.1]) / get_stage_units(), offset=None)
 
         # initialize target in front looking forward for camera
+
+        self.target_start = [0.39, 0.0, 0.34]
+
         super().__init__(name="xarm_follow_target_task", 
-                         target_position=np.array([0.39, 0.0, 0.34]) / get_stage_units(), 
+                         target_position=np.array(self.target_start) / get_stage_units(), 
                          target_orientation=np.array([0.707106, 0, 0.707106, 0]), 
                          offset=None)
 
