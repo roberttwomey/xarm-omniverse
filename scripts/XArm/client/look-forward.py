@@ -43,8 +43,10 @@ def pprint(*args, **kwargs):
     except:
         print(*args, **kwargs)
 
-frontForwardAngle = [0, 2.5, 0, 37.3, 0, -57.3, 0]
-frontBackAngle = [0.0,-45.0,0.0,0.0,0.0,-45.0,0.0]
+# frontForwardAngle = [0, 2.5, 0, 37.3, 0, -57.3, 0]
+# frontBackAngle = [0.0,-45.0,0.0,0.0,0.0,-45.0,0.0]
+frontForwardAngle = [0, 2.5, 0, 37.3, 0, -57.3, -179.0]
+frontBackAngle = [0.0,-45.0,0.0,0.0,0.0,-45.0,-179.0]
 
 
 pprint('xArm-Python-SDK Version:{}'.format(version.__version__))

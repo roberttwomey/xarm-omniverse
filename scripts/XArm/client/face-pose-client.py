@@ -19,9 +19,8 @@ if (len(sys.argv) > 1):
 if bSocket:
 	# open socket to omniverse machine
 	mysocket = socket.socket()
-	# mysocket.connect(('192.168.4.206',12346)) # robert's local machine
-	# mysocket.connect(('192.168.1.62',12346))
-	mysocket.connect(('127.0.0.1',12346))
+	mysocket.connect(('192.168.4.5',12346)) # easybake
+	# mysocket.connect(('127.0.0.1',12346))
 
 
 def close_socket(thissocket):
@@ -45,6 +44,7 @@ drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 cap = cv2.VideoCapture(0)
 # cap = cv2.VideoCapture(1)
 
+count = 0
 try: 
 	while cap.isOpened():
 		success, image = cap.read()
@@ -113,7 +113,7 @@ try:
 				# solve PnP
 				success, rot_vec, trans_vec = cv2.solvePnP(face_3d, face_2d, cam_matrix, dist_matrix)
 
-				print(rot_vec, trans_vec)
+				# print(rot_vec, trans_vec)
 
 				# get rotatinal matrix
 				rmat, jac = cv2.Rodrigues(rot_vec)
@@ -122,18 +122,18 @@ try:
 				angles, mtxR, mtxQ, Qx, Qy, Qz = cv2.RQDecomp3x3(rmat)
 
 				# get the y rotation degree
-				x = angles[0] * 360
-				y = angles[1] * 360
-				z = angles[2] * 360
+				x_rot = angles[0] * 360
+				y_rot = angles[1] * 360
+				z_rot = angles[2] * 360
 
 				# see where the user's head is tilting
-				if y < -10:
+				if y_rot < -10:
 					text = "Looking Left"
-				elif y > 10:
+				elif y_rot > 10:
 					text = "Looking Right"
-				elif x < -10:
+				elif x_rot < -10:
 					text = "Looking Down"
-				elif x > 10:
+				elif x_rot > 10:
 					text = "Looking Up"
 				else: 
 					text = "Looking Forward"
@@ -142,19 +142,21 @@ try:
 				nose_3d_projection, jacobian = cv2.projectPoints(nose_3d, rot_vec, trans_vec, cam_matrix, dist_matrix)
 
 				p1 = (int(nose_2d[0]), int(nose_2d[1]))
-				p2 = (int(nose_2d[0] + y * 10), int(nose_2d[1] - x * 10))
+				p2 = (int(nose_2d[0] + y_rot * 10), int(nose_2d[1] - x_rot * 10))
 
 				cv2.line(image, p1, p2, (255, 0, 0), 3)
 				
 				# add the text on the image
 				cv2.putText(image, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "x: "+str(np.round(x, 2)), (500, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "y: "+str(np.round(y, 2)), (500, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "z: "+str(np.round(z, 2)), (500, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				cv2.putText(image, "x_rot: "+str(np.round(x_rot, 2)), (500, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				cv2.putText(image, "y_rot: "+str(np.round(y_rot, 2)), (500, 90), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				cv2.putText(image, "z_rot: "+str(np.round(z_rot, 2)), (500, 130), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
 				xdiff = 0.5-nose_norm[0]
 				ydiff = 0.5-nose_norm[1]
-				cv2.putText(image, "xdiff: "+str(np.round(xdiff, 2)), (500, 250), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "ydiff: "+str(np.round(ydiff, 2)), (500, 300), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				zdist = (400.0 + nose_3d[2])/10.0 # arbitrary offset
+				cv2.putText(image, "xdiff: "+str(np.round(xdiff, 2)), (500, 170), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				cv2.putText(image, "ydiff: "+str(np.round(ydiff, 2)), (500, 210), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				cv2.putText(image, "zdist: "+str(np.round(zdist, 2)), (500, 240), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
 
 			end = time.time()
 			totalTime = end-start
@@ -173,8 +175,11 @@ try:
 
 			if bSocket:
 				try:
-					print("sending:", [x, y, z, xdiff, ydiff])
-					sendData = str([x, y, z, xdiff, ydiff])
+					count += 1
+					if count % 3 == 0:
+						print("sending:", [x_rot, y_rot, z_rot, xdiff, ydiff, zdist])
+						count = 0
+					sendData = str([x_rot, y_rot, z_rot, xdiff, ydiff, zdist])
 					mysocket.send(sendData.encode())
 				except:
 					pass
