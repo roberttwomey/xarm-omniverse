@@ -63,10 +63,15 @@ def main():
     articulation_controller = xarm.get_articulation_controller()
 
     xarm_socket = XArmSocket()
+    stream_joints = False
 
     xarm_socket.start_txsocket()
     xarm_socket.start_rxsocket()
 
+    _safe_zone = [
+        (0.3, -0.3, 0.3), # back bottom right 
+        (0.6, 0.3, 0.625) # top front left
+                        ]
     max_range = 0.7
     min_range = 0.3
     min_height = 0.1
@@ -99,67 +104,81 @@ def main():
             articulation_controller.set_gains(gains[0], gains[1]) # Solution from Nvidia Live Session 1:23:00
             articulation_controller.apply_action(actions)
 
-            if xarm_socket.txconn:
+            # if xarm_socket.txconn:
+            #     try: 
+            #         sendData = str(xarm.get_joint_positions().tolist())
+            #         res = xarm_socket.txconn.send(sendData.encode())
+            #         if res == 0:
+            #             print("channel is closed...")
+            #     except:
+            #         # if sending failed, recreate the socket and reconnect
+            #         print("sending failed... closing connection")
+            #         xarm_socket.txconn.close()
+            #         xarm_socket.txconn = None
+
+            if xarm_socket.txconn and stream_joints:
                 try: 
-                    sendData = str(xarm.get_joint_positions().tolist())
+                    sendData = str(_xarm.get_joint_positions().tolist())
+                    #print("joints:", sendData)
                     res = xarm_socket.txconn.send(sendData.encode())
                     if res == 0:
                         print("channel is closed...")
-                except:
+                except Exception as e:
+                    print(e)
                     # if sending failed, recreate the socket and reconnect
                     print("sending failed... closing connection")
                     xarm_socket.txconn.close()
                     xarm_socket.txconn = None
 
-            
             current_time = time.time()
-            if xarm_socket.dx and xarm_socket.dy:
-                # update position of target from camera feed
-                cube = world.scene.get_object("target")
-                pos, _ = cube.get_world_pose()
-                newpose = [pos[0], pos[1] + xarm_socket.dx, pos[2] + xarm_socket.dy]
-                range = np.linalg.norm(newpose)
-                if range < min_range:
-                    newpose = newpose / np.linalg.norm(newpose) * min_range
-                elif range > max_range:
-                    newpose = newpose / np.linalg.norm(newpose) * max_range
 
-                newpose = [newpose[0], newpose[1], max(newpose[2], min_height)]
+            if xarm_socket.face_direction:
+                    # update position of target from camera feed            
+                cube = _world.scene.get_object("target")
+                pos, qrot = cube.get_world_pose()
+                print(qrot)
+                newpose = [ pos[0]+xarm_socket.z, pos[1]+xarm_socket.dx, pos[2]+xarm_socket.dy]
 
-                updated_quaternion = get_new_target_orientation(newpose)
-                
+                newpose[0] = np.clip(newpose[0], _safe_zone[0][0], _safe_zone[1][0])
+                newpose[1] = np.clip(newpose[1], _safe_zone[0][1], _safe_zone[1][1])
+                newpose[2] = np.clip(newpose[2], _safe_zone[0][2], _safe_zone[1][2])
                 print("pose", pos, "->", newpose, end="")
-                cube.set_world_pose(np.array(newpose), updated_quaternion)
+                cube.set_world_pose(np.array(newpose))
                 print("set.")
+
                 xarm_socket.dx = None
                 xarm_socket.dy = None
 
-                last_face_seen_time = current_time
-            elif ( \
-                    xarm_task.task_achieved or \
-                    current_time > last_rand_target_time + last_rand_target_timeout \
-                ) and current_time > last_face_seen_time + last_face_seen_timeout:
+                _last_face_seen_time = current_time
+
+            elif rand_target_enabled and ( \
+                _xarm_task.task_achieved or \
+                current_time > _last_rand_target_time + _last_rand_target_timeout \
+                ) and current_time > _last_face_seen_time + _last_face_seen_timeout:
                 # set random location
-                cube = world.scene.get_object("target")
+                cube = _world.scene.get_object("target")
                 randpos = [
                     np.random.uniform(-1, 1), 
                     np.random.uniform(-1, 1),
                     np.random.uniform(0, 1)
                 ]
                 range = np.linalg.norm(randpos)
-                if range < min_range:
-                    randpos = randpos / np.linalg.norm(randpos) * min_range
-                elif range > max_range:
-                    randpos = randpos / np.linalg.norm(randpos) * max_range
+                if range < _min_range:
+                    randpos = randpos / np.linalg.norm(randpos) * _min_range
+                elif range > _max_range:
+                    randpos = randpos / np.linalg.norm(randpos) * _max_range
 
-                randpos = [randpos[0], randpos[1], max(randpos[2], min_height)]
+                randpos = [randpos[0], randpos[1], max(randpos[2], _min_height)]
 
-                updated_quaternion = get_new_target_orientation(randpos)
+                updated_quaternion = _get_new_target_orientation(randpos)
 
                 print("Setting new target pos:"+str(randpos))
                 cube.set_world_pose(np.array(randpos), updated_quaternion)
 
-                last_rand_target_time = time.time()
+                _last_rand_target_time = time.time()
+
+        xarm_socket.cam_to_nose=None
+        xarm_socket.face_direction=None
 
     xarm_socket.shut_down_socket()
     simulation_app.close()
