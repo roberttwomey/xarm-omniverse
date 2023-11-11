@@ -152,10 +152,16 @@ def main():
 
                 last_face_seen_time = current_time
 
+            # elif rand_target_enabled and ( \
+            #     xarm_task.task_achieved or \
+            #     current_time > last_rand_target_time + last_rand_target_timeout \
+            #     ) and current_time > last_face_seen_time + last_face_seen_timeout:
+
             elif rand_target_enabled and ( \
                 xarm_task.task_achieved or \
                 current_time > last_rand_target_time + last_rand_target_timeout \
                 ) and current_time > last_face_seen_time + last_face_seen_timeout:
+
                 # set random location
                 cube = world.scene.get_object("target")
                 randpos = [
@@ -177,7 +183,7 @@ def main():
                 cube.set_world_pose(np.array(randpos), updated_quaternion)
 
                 last_rand_target_time = time.time()
-                
+
             elif current_time > last_face_seen_time + last_face_seen_timeout:
                 cube = world.scene.get_object("target")
                 pos, qrot = cube.get_world_pose()
