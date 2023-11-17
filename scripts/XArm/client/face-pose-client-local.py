@@ -51,9 +51,10 @@ try:
 
 		start = time.time()
 
+		# upside down
 		image = cv2.cvtColor(cv2.flip(image, -1), cv2.COLOR_BGR2RGB)
 
-		# razer kyo pro
+		# razer kyo pro - right side up
 		# image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
 
 		# improve performance
@@ -114,7 +115,7 @@ try:
 				success, rot_vec, trans_vec = cv2.solvePnP(face_3d, face_2d, cam_matrix, dist_matrix)
 
 				# print("rot vec: ", rot_vec, "\ntrans vec: ", trans_vec)
-				print("nose_3d", nose_3d)
+				#print("nose_3d", nose_3d)
 
 				# get rotatinal matrix
 				rmat, jac = cv2.Rodrigues(rot_vec)
@@ -164,9 +165,9 @@ try:
 				cv2.putText(image, "y_rot: "+str(np.round(y_rot, 2)), (400, 100), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 				cv2.putText(image, "z_rot: "+str(np.round(z_rot, 2)), (400, 150), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 				xdiff = 0.5-nose_norm[0]
-				ydiff = 0.5-nose_norm[1]
+				ydiff = nose_norm[1]-0.5
 				# zdist = 0.030 - ((400.0 + nose_3d[2])/10000.0) # arbitrary offset
-				zdiff = nose_3d[2]/10000.0 + 0.01 # simple-face
+				zdiff = 10*nose_3d[2]/10000.0 + 0.01 # simple-face
 				cv2.putText(image, "xdiff: "+str(np.round(xdiff, 3)), (400, 200), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 				cv2.putText(image, "ydiff: "+str(np.round(ydiff, 3)), (400, 250), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 				cv2.putText(image, "zdiff: "+str(np.round(zdiff, 3)), (400, 300), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
@@ -190,9 +191,9 @@ try:
 				try:
 					count += 1
 					if count % 3 == 0:
-						print("sending:", [x_rot, y_rot, z_rot, xdiff, ydiff, zdiff])
+						print("sending:", [x_rot, y_rot*1.0, z_rot, xdiff, ydiff, zdiff])
 						count = 0
-					sendData = str([x_rot, y_rot, z_rot, xdiff, ydiff, zdiff])
+					sendData = str([x_rot, y_rot*-1.0, z_rot, xdiff, ydiff, zdiff])
 					mysocket.send(sendData.encode())
 				except:
 					pass

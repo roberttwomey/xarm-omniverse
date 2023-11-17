@@ -37,24 +37,28 @@ class XArmSocket():
 
     def setup_txsocket(self):
         if self.txsocket is None:
+            print("tx: setup socket")
             self.txsocket = socket.socket()
             # allow socket to reuse address
             self.txsocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             txport = 12345
             self.txsocket.bind(('', txport))
         
+        print("tx: listening for connections...")
         # https://docs.python.org/3/library/socket.html#socket.socket.listen
         self.txsocket.listen(5) # number of unaccepted connections allow (backlog)
         
         while True:
+            print("tx: waiting for connection...", end="")
             self.txconn, self.txaddr = self.txsocket.accept()
-            print("accepted tx connection from:",str(self.txaddr[0]), ":", str(self.txaddr[1]))
+            print("tx: accepted connection from:",str(self.txaddr[0]), ":", str(self.txaddr[1]))
 
     def setup_rxsocket(self):
         if self.rxsocket is None:
             self.rxsocket = socket.socket()
             # allow socket to reuse address
             self.rxsocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            
             rxport = 12346
             self.rxsocket.bind(('', rxport))
         
@@ -62,11 +66,17 @@ class XArmSocket():
         self.rxsocket.listen(5) # number of unaccepted connections allow (backlog)
         
         while True:
+            print("rx: waiting for connection...", end="")
             self.rxconn, self.rxaddr = self.rxsocket.accept()
-            print("accepted rx connection from:",str(self.rxaddr[0]), ":", str(self.rxaddr[1]))
+            print("rx: accepted connection from:",str(self.rxaddr[0]), ":", str(self.rxaddr[1]))
 
             while True:
                 data = self.rxconn.recv(1024)
+
+                if data == b'': 
+                    print("rx: socket closed.")
+                    break
+
                 # if data:
                 #     message = data.decode()
                 #     # carb.log_error("received:" + str(type(message)) + message)
@@ -96,22 +106,22 @@ class XArmSocket():
                     # RGB Camera
                     message = data.decode()
                     # print("received:", type(message), message)
-                    x, y, z, dx, dy, dz = ast.literal_eval(message)
+                    y, p, r, dx, dy, dz = ast.literal_eval(message)
                     # print("received:", x, y, z, dx, dy)
-                    weight = 0.03  # 0.05
-                    # self.dx = weight*dx
-                    # self.dy = weight*dy
-                    # self.dz = 2.0 * dz
-                    self.dx = dx
-                    self.dy = dy
-                    self.dz = dz
-                    
-                    self.rx = x
-                    self.ry = y
-                    self.rz = z
+                    weight = 0.3  # 0.05
+                    self.dx = weight*dx
+                    self.dy = weight*dy
+                    self.dz = weight*dz
                     # self.dx = dx
                     # self.dy = dy
-                    self.face_direction = [x, y, z]
+                    # self.dz = dz
+
+                    self.rx = y
+                    self.ry = p
+                    self.rz = r
+                    # self.dx = dx
+                    # self.dy = dy
+                    self.face_direction = [y, p, r]
                 else:
                     self.face_direction = None
 

@@ -28,10 +28,10 @@ class XArmFollowTarget(tasks.FollowTarget):
         # initialize target in front looking forward for camera
 
         self.target_start = [0.39, 0.0, 0.34]
-
+        self.target_start_rot = [0.707106, 0, 0.707106, 0]
         super().__init__(name="xarm_follow_target_task", 
                          target_position=np.array(self.target_start) / get_stage_units(), 
-                         target_orientation=np.array([0.707106, 0, 0.707106, 0]), 
+                         target_orientation=np.array(self.target_start_rot), 
                          offset=None)
 
         # target_orientation see here https://docs.omniverse.nvidia.com/py/isaacsim/source/extensions/omni.isaac.core/docs/index.html#omni.isaac.core.tasks.FollowTarget

@@ -23,23 +23,23 @@ from omni.isaac.core.objects import FixedCuboid
 
 
 def get_quaternion_from_euler(roll, pitch, yaw):
-  """
-  Convert an Euler angle to a quaternion.
-   
-  Input
-    :param roll: The roll (rotation around x-axis) angle in radians.
-    :param pitch: The pitch (rotation around y-axis) angle in radians.
-    :param yaw: The yaw (rotation around z-axis) angle in radians.
+    """
+    Convert an Euler angle to a quaternion.
+    
+    Input
+        :param roll: The roll (rotation around x-axis) angle in radians.
+        :param pitch: The pitch (rotation around y-axis) angle in radians.
+        :param yaw: The yaw (rotation around z-axis) angle in radians.
+    
+    Output
+        :return qx, qy, qz, qw: The orientation in quaternion [w,x,y,z] format
+    """
+    qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+    qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
+    qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
+    qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
  
-  Output
-    :return qx, qy, qz, qw: The orientation in quaternion [x,y,z,w] format
-  """
-  qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-  qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
-  qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
-  qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
- 
-  return [qw, qx, qy, qz]
+    return [qw, qx, qy, qz]
 
 
 def get_new_target_orientation(position):
@@ -76,6 +76,7 @@ def main():
 
     xarm = world.scene.get_object(xarm_name)
     cube = world.scene.get_object(target_name)
+    # print(cube.get_world_pose())
 
     face_cube = world.scene.add(
         FixedCuboid(
@@ -178,25 +179,48 @@ def main():
                 # end_pose = omni.usd.get_world_transform_matrix(xarm.end_effector)
                 # print("end effector pose", end_pose)
 
-                newpose = [ pos[0]+xarm_socket.dz, pos[1]+xarm_socket.dx, pos[2]+xarm_socket.dy]
+                # rx_rad = np.deg2rad(xarm_socket.rx+90)
+                rx_rad = np.deg2rad(xarm_socket.rx)
+                ry_rad = np.deg2rad(xarm_socket.ry)
+                rz_rad = np.deg2rad(xarm_socket.rz)
 
+                # local_face_rot = get_quaternion_from_euler(rz_rad, rx_rad, ry_rad)
+                local_face_rot = get_quaternion_from_euler(ry_rad, rx_rad, rz_rad)
+                local_face_pos = [xarm_socket.dy, xarm_socket.dx, 0.4+xarm_socket.dz]
+                face_cube.set_local_pose(translation=np.array(local_face_pos))
+                face_cube.set_local_pose(orientation=np.array(local_face_rot))
+                
+                face_pose, face_rot = face_cube.get_world_pose()
+
+                a = 0.97
+                b = 1.0-a
+                
+                newpose = [ 
+                    a*pos[0]+b*face_pose[0], 
+                    a*pos[1]+b*face_pose[1],
+                    a*pos[2]+b*face_pose[2]
+                    ]
+                
+                newrot = [
+                    a*qrot[0]+b*face_rot[0],
+                    a*qrot[1]+b*face_rot[1],
+                    a*qrot[2]+b*face_rot[2],
+                    a*qrot[3]+b*face_rot[3],
+                ]
+
+                # newpose = [ pos[0]+xarm_socket.dz, pos[1]+xarm_socket.dx, pos[2]+xarm_socket.dy]
+                
                 newpose[0] = np.clip(newpose[0], safe_zone[0][0], safe_zone[1][0])
                 newpose[1] = np.clip(newpose[1], safe_zone[0][1], safe_zone[1][1])
                 newpose[2] = np.clip(newpose[2], safe_zone[0][2], safe_zone[1][2])
                 # print("pose", pos, "->", newpose, end="")
 
-                rx_rad = np.deg2rad(xarm_socket.rx+90)
-                ry_rad = np.deg2rad(xarm_socket.ry)
-                rz_rad = np.deg2rad(xarm_socket.rz)
-                newrot = get_quaternion_from_euler(rz_rad, rx_rad, ry_rad)
-
                 # cube.set_world_pose(pos, np.array(newrot))
                 # cube.set_world_pose(np.array(newpose), np.array(newrot))
                 # print("set.")
 
-                face_cube.set_local_pose(translation=np.array([xarm_socket.dy, xarm_socket.dx, 0.4+xarm_socket.dz]))
-                face_pose, face_rot = face_cube.get_world_pose()
-                cube.set_world_pose(face_pose, face_rot)
+                # cube.set_world_pose(newpose, newrot)
+                cube.set_world_pose(newpose)
 
                 xarm_socket.dx = None
                 xarm_socket.dy = None
@@ -214,7 +238,8 @@ def main():
                 ) and current_time > last_face_seen_time + last_face_seen_timeout:
 
                 # set random location
-                cube = world.scene.get_object("target")
+                # cube = world.scene.get_object("target")
+
                 randpos = [
                     np.random.uniform(-1, 1), 
                     np.random.uniform(-1, 1),
@@ -236,25 +261,37 @@ def main():
                 last_rand_target_time = time.time()
 
             elif current_time > last_face_seen_time + last_face_seen_timeout:
-                cube = world.scene.get_object("target")
+                # relax back to center
+                # cube = world.scene.get_object("target")
                 pos, qrot = cube.get_world_pose()
 
                 a = 0.97
                 b = 1.0-a
+
                 newpose = [ 
                     a*pos[0]+b*xarm_task.target_start[0], 
                     a*pos[1]+b*xarm_task.target_start[1],
                     a*pos[2]+b*xarm_task.target_start[2]
                     ]
                 
+                newrot = [
+                    a*qrot[0]+b*xarm_task.target_start_rot[0],
+                    a*qrot[1]+b*xarm_task.target_start_rot[1],
+                    a*qrot[2]+b*xarm_task.target_start_rot[2],
+                    a*qrot[3]+b*xarm_task.target_start_rot[3],
+                ]
+                
                 newpose[0] = np.clip(newpose[0], safe_zone[0][0], safe_zone[1][0])
                 newpose[1] = np.clip(newpose[1], safe_zone[0][1], safe_zone[1][1])
                 newpose[2] = np.clip(newpose[2], safe_zone[0][2], safe_zone[1][2])
                 
-                cube.set_world_pose(np.array(newpose))
+                cube.set_world_pose(np.array(newpose), np.array(newrot))
 
         xarm_socket.cam_to_nose=None
         xarm_socket.face_direction=None
+
+    print("closing...")
+    # print(cube.get_world_pose())
 
     xarm_socket.shut_down_socket()
     simulation_app.close()

@@ -3,8 +3,8 @@ import math
 import time
 
 mysocket = socket.socket()
-# mysocket.connect(('127.0.0.1',12345))
-mysocket.connect(('192.168.4.5',12345))
+mysocket.connect(('127.0.0.1',12345))
+# mysocket.connect(('192.168.4.5',12345))
 
 
 """
@@ -20,6 +20,13 @@ except:
 from xarm import version
 from xarm.wrapper import XArmAPI
 
+# bSimulate = True
+
+# if (len(sys.argv) > 1):
+# 	print(sys.argv)
+# 	if sys.argv[1] == "--simulate":
+# 		bSimulate = True
+
 arm = XArmAPI('192.168.4.15')
 arm.motion_enable(enable=True)
 arm.set_mode(0)
@@ -32,7 +39,6 @@ arm.set_state(0)
 time.sleep(0.1)
 
 omniStartAngle = [112.1, -81.0, -77.8, 33.7, 14.9, -79.3, 90.9]
-
 
 variables = {}
 params = {'speed': 100, 'acc': 2000, 'angle_speed': 20, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
@@ -90,8 +96,10 @@ arm.set_state(0)
 code = arm.set_servo_angle(angle=omniStartAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
 
 if code != 0:
-    pprint("Error moving to start position")
-    pprint('set_servo_angle, code={}'.format(code))
+    print("Error moving to start position")
+    print('set_servo_angle, code={}'.format(code))
+# code = 0
+
 
 arm.set_mode(1)
 arm.set_state(0)
@@ -132,8 +140,8 @@ time.sleep(0.1)
 code = arm.set_servo_angle(angle=omniStartAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
 
 if code != 0:
-    pprint("Error moving to start position")
-    pprint('set_servo_angle, code={}'.format(code))
+    print("Error moving to start position")
+    print('set_servo_angle, code={}'.format(code))
 
 print("done.")
 
