@@ -18,6 +18,25 @@ from XArm.xarm_socket import XArmSocket
 import numpy as np
 import time
 
+def get_quaternion_from_euler(roll, pitch, yaw):
+  """
+  Convert an Euler angle to a quaternion.
+   
+  Input
+    :param roll: The roll (rotation around x-axis) angle in radians.
+    :param pitch: The pitch (rotation around y-axis) angle in radians.
+    :param yaw: The yaw (rotation around z-axis) angle in radians.
+ 
+  Output
+    :return qx, qy, qz, qw: The orientation in quaternion [x,y,z,w] format
+  """
+  qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+  qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
+  qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
+  qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+ 
+  return [qw, qx, qy, qz]
+
 
 def get_new_target_orientation(position):
     direction_vector = np.array([0, 0, 0]) - position
@@ -144,7 +163,15 @@ def main():
                 newpose[1] = np.clip(newpose[1], safe_zone[0][1], safe_zone[1][1])
                 newpose[2] = np.clip(newpose[2], safe_zone[0][2], safe_zone[1][2])
                 # print("pose", pos, "->", newpose, end="")
-                cube.set_world_pose(np.array(newpose))
+
+                rx_rad = np.deg2rad(xarm_socket.rx+90)
+                ry_rad = np.deg2rad(xarm_socket.ry)
+                rz_rad = np.deg2rad(xarm_socket.rz)
+                newrot = get_quaternion_from_euler(rz_rad, rx_rad, ry_rad)
+
+                # cube.set_world_pose(pos, np.array(newrot))
+                cube.set_world_pose(np.array(newpose), np.array(newrot))
+                # cube.set_world_pose(np.array(newpose))
                 # print("set.")
 
                 xarm_socket.dx = None

@@ -113,13 +113,15 @@ try:
 				# solve PnP
 				success, rot_vec, trans_vec = cv2.solvePnP(face_3d, face_2d, cam_matrix, dist_matrix)
 
-				# print(rot_vec, trans_vec)
+				# print("rot vec: ", rot_vec, "\ntrans vec: ", trans_vec)
 
 				# get rotatinal matrix
 				rmat, jac = cv2.Rodrigues(rot_vec)
 
-				# get angles
+				# sget angles
 				angles, mtxR, mtxQ, Qx, Qy, Qz = cv2.RQDecomp3x3(rmat)
+
+				# print("Q: ", Qx, Qy, Qz)
 
 				# get the y rotation degree
 				x_rot = angles[0] * 360
@@ -140,6 +142,12 @@ try:
 
 				# display the nose direction
 				nose_3d_projection, jacobian = cv2.projectPoints(nose_3d, rot_vec, trans_vec, cam_matrix, dist_matrix)
+				# print("nose 3d proj:", nose_3d_projection)
+				# print("Xr Yr Zr", x_rot, y_rot, z_rot)
+
+				# compute world xyz pose of object
+				# https://stackoverflow.com/questions/12299870/computing-x-y-coordinate-3d-from-image-point
+
 
 				p1 = (int(nose_2d[0]), int(nose_2d[1]))
 				p2 = (int(nose_2d[0] + y_rot * 10), int(nose_2d[1] - x_rot * 10))

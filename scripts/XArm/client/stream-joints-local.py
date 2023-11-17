@@ -31,6 +31,9 @@ arm.set_mode(1)
 arm.set_state(0)
 time.sleep(0.1)
 
+omniStartAngle = [112.1, -81.0, -77.8, 33.7, 14.9, -79.3, 90.9]
+
+
 variables = {}
 params = {'speed': 100, 'acc': 2000, 'angle_speed': 20, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
 
@@ -80,8 +83,22 @@ def close_socket(thissocket):
         pass
     print("socket is closed")
 
+arm.motion_enable(True)
+arm.set_mode(0)
+arm.set_state(0)
+
+code = arm.set_servo_angle(angle=omniStartAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
+
+if code != 0:
+    pprint("Error moving to start position")
+    pprint('set_servo_angle, code={}'.format(code))
+
+arm.set_mode(1)
+arm.set_state(0)
+time.sleep(0.1)
+
 try:
-    while True:
+    while True and code == 0:
         data = mysocket.recv(1024)
         message = data.decode()
         if message == "Done":
@@ -96,7 +113,7 @@ try:
         joints_deg = [math.degrees(joint) for joint in joints]
         
         if arm.connected and arm.state != 4:
-            arm.set_servo_angle_j(joints, is_radian=True)
+            code = arm.set_servo_angle_j(joints, is_radian=True)
         
         # print("moved to", joints_deg)
         
@@ -105,6 +122,20 @@ except KeyboardInterrupt:
     close_socket(mysocket)
 
 print("Isaac Sim Connection Stopped")
+
+print("Go to start pos...", end="")
+
+arm.set_mode(0)
+arm.set_state(0)
+time.sleep(0.1)
+
+code = arm.set_servo_angle(angle=omniStartAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
+
+if code != 0:
+    pprint("Error moving to start position")
+    pprint('set_servo_angle, code={}'.format(code))
+
+print("done.")
 
 if hasattr(arm, 'release_count_changed_callback'):
     arm.release_count_changed_callback(count_changed_callback)
