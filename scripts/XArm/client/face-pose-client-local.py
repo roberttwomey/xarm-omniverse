@@ -81,7 +81,7 @@ try:
 					if idx == 33 or idx == 263 or idx == 1 or idx == 61 or idx == 291 or idx == 199:
 						if idx == 1:
 							nose_2d = (lm.x * img_w, lm.y * img_h)
-							nose_norm = (lm.x, lm.y)
+							nose_norm = (lm.x, lm.y, lm.z)
 							nose_3d = (lm.x * img_w, lm.y * img_h, lm.z * 3000)
 
 						x, y = int(lm.x * img_w), int(lm.y * img_h)
@@ -114,6 +114,7 @@ try:
 				success, rot_vec, trans_vec = cv2.solvePnP(face_3d, face_2d, cam_matrix, dist_matrix)
 
 				# print("rot vec: ", rot_vec, "\ntrans vec: ", trans_vec)
+				print("nose_3d", nose_3d)
 
 				# get rotatinal matrix
 				rmat, jac = cv2.Rodrigues(rot_vec)
@@ -155,17 +156,20 @@ try:
 				cv2.line(image, p1, p2, (255, 0, 0), 3)
 				
 				# add the text on the image
-				cv2.putText(image, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "x_rot: "+str(np.round(x_rot, 2)), (500, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "y_rot: "+str(np.round(y_rot, 2)), (500, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "z_rot: "+str(np.round(z_rot, 2)), (500, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				# scale = 0.01 # this value can be from 0 to 1 (0,1] to change the size of the text relative to the image
+				# fontScale = min(img_w, img_h)/(25/scale)
+				fontScale = 0.8
+				cv2.putText(image, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
+				cv2.putText(image, "x_rot: "+str(np.round(x_rot, 2)), (400, 50), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
+				cv2.putText(image, "y_rot: "+str(np.round(y_rot, 2)), (400, 100), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
+				cv2.putText(image, "z_rot: "+str(np.round(z_rot, 2)), (400, 150), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 				xdiff = 0.5-nose_norm[0]
 				ydiff = 0.5-nose_norm[1]
 				# zdist = 0.030 - ((400.0 + nose_3d[2])/10000.0) # arbitrary offset
-				zdiff = nose_3d[2]/10000.0 + 0.01
-				cv2.putText(image, "xdiff: "+str(np.round(xdiff, 3)), (500, 200), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "ydiff: "+str(np.round(ydiff, 3)), (500, 250), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "zdiff: "+str(np.round(zdiff, 3)), (500, 300), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				zdiff = nose_3d[2]/10000.0 + 0.01 # simple-face
+				cv2.putText(image, "xdiff: "+str(np.round(xdiff, 3)), (400, 200), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
+				cv2.putText(image, "ydiff: "+str(np.round(ydiff, 3)), (400, 250), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
+				cv2.putText(image, "zdiff: "+str(np.round(zdiff, 3)), (400, 300), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 
 			end = time.time()
 			totalTime = end-start
@@ -173,7 +177,7 @@ try:
 			fps = 1/totalTime
 			# print("FPS: ", fps)
 
-			cv2.putText(image, f'FPS: {int(fps)}', (20, 450), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+			cv2.putText(image, f'FPS: {int(fps)}', (20, 450), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 
 			mp_drawing.draw_landmarks(
 				image=image,

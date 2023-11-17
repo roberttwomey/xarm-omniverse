@@ -18,6 +18,10 @@ from XArm.xarm_socket import XArmSocket
 import numpy as np
 import time
 
+import omni
+from omni.isaac.core.objects import FixedCuboid
+
+
 def get_quaternion_from_euler(roll, pitch, yaw):
   """
   Convert an Euler angle to a quaternion.
@@ -73,6 +77,19 @@ def main():
     xarm = world.scene.get_object(xarm_name)
     cube = world.scene.get_object(target_name)
 
+    face_cube = world.scene.add(
+        FixedCuboid(
+            prim_path="/World/XArm7/link7/face_cube", # The prim path of the cube in the USD stage
+            name="face_cube", # The unique name used to retrieve the object from the scene later on
+            position=np.array([0.0, 0, 0.4]), # Using the current stage units which is in meters by default.
+            scale=np.array([0.06, 0.06, 0.06]), # most arguments accept mainly numpy arrays.
+            color=np.array([0, 0, 1.0]), # RGB channels, going from 0-1
+        ))
+    
+    face_cube.set_collision_enabled(False)
+    face_cube.set_default_state(position=np.array([0.0, 0, 0.4]))
+    face_cube.set_local_pose(translation=np.array([0.0, 0, 0.4]))
+    
     xarm_controller = XArmRMPFlowController(
         name="target_follower_controller", 
         robot_articulation=xarm,
@@ -153,11 +170,15 @@ def main():
             current_time = time.time()
 
             if xarm_socket.face_direction:
-                    # update position of target from camera feed            
-                cube = world.scene.get_object("target")
+                # update position of target from camera feed            
+                # cube = world.scene.get_object("target")
                 pos, qrot = cube.get_world_pose()
                 # print(qrot)
-                newpose = [ pos[0]+xarm_socket.z, pos[1]+xarm_socket.dx, pos[2]+xarm_socket.dy]
+                
+                # end_pose = omni.usd.get_world_transform_matrix(xarm.end_effector)
+                # print("end effector pose", end_pose)
+
+                newpose = [ pos[0]+xarm_socket.dz, pos[1]+xarm_socket.dx, pos[2]+xarm_socket.dy]
 
                 newpose[0] = np.clip(newpose[0], safe_zone[0][0], safe_zone[1][0])
                 newpose[1] = np.clip(newpose[1], safe_zone[0][1], safe_zone[1][1])
@@ -170,13 +191,16 @@ def main():
                 newrot = get_quaternion_from_euler(rz_rad, rx_rad, ry_rad)
 
                 # cube.set_world_pose(pos, np.array(newrot))
-                cube.set_world_pose(np.array(newpose), np.array(newrot))
-                # cube.set_world_pose(np.array(newpose))
+                # cube.set_world_pose(np.array(newpose), np.array(newrot))
                 # print("set.")
+
+                face_cube.set_local_pose(translation=np.array([xarm_socket.dy, xarm_socket.dx, 0.4+xarm_socket.dz]))
+                face_pose, face_rot = face_cube.get_world_pose()
+                cube.set_world_pose(face_pose, face_rot)
 
                 xarm_socket.dx = None
                 xarm_socket.dy = None
-
+                xarm_socket.dz = None
                 last_face_seen_time = current_time
 
             # elif rand_target_enabled and ( \
