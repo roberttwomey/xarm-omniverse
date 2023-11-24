@@ -38,7 +38,11 @@ arm.set_mode(1)
 arm.set_state(0)
 time.sleep(0.1)
 
-omniStartAngle = [112.1, -81.0, -77.8, 33.7, 14.9, -79.3, 90.9]
+# omniStartAngle = [112.1, -81.0, -77.8, 33.7, 14.9, -79.3, 90.9]
+# frontForwardAngle = [0, 2.5, 0, 37.3, 0, -57.3, -179.0]
+# omniStartAngle = [0, 2.5, 0, 37.3, 0, -57.3, -179.0]
+omniStartAngle = [-6.838786670630505, -15.210568319335351, 6.733042535674014, 37.296668019488585, 179.41233553276842, 37.60242485277879, 2.225478402831139]
+                  
 
 variables = {}
 params = {'speed': 100, 'acc': 2000, 'angle_speed': 20, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
@@ -105,6 +109,7 @@ arm.set_mode(1)
 arm.set_state(0)
 time.sleep(0.1)
 
+count = 0
 try:
     while True and code == 0:
         data = mysocket.recv(1024)
@@ -122,8 +127,9 @@ try:
         
         if arm.connected and arm.state != 4:
             code = arm.set_servo_angle_j(joints, is_radian=True)
-        
-        # print("moved to", joints_deg)
+        # count = count + 1
+        # if count %5 == 0:
+            # print("moved to", joints_deg)
         
 except KeyboardInterrupt:
     print("closing socket...")

@@ -52,10 +52,10 @@ try:
 		start = time.time()
 
 		# upside down
-		image = cv2.cvtColor(cv2.flip(image, -1), cv2.COLOR_BGR2RGB)
+		# image = cv2.cvtColor(cv2.flip(image, -1), cv2.COLOR_BGR2RGB)
 
 		# razer kyo pro - right side up
-		# image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
+		image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
 
 		# improve performance
 		image.flags.writeable = False
@@ -164,10 +164,10 @@ try:
 				cv2.putText(image, "x_rot: "+str(np.round(x_rot, 2)), (400, 50), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 				cv2.putText(image, "y_rot: "+str(np.round(y_rot, 2)), (400, 100), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 				cv2.putText(image, "z_rot: "+str(np.round(z_rot, 2)), (400, 150), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
-				xdiff = 0.5-nose_norm[0]
+				xdiff = nose_norm[0]-0.5
 				ydiff = nose_norm[1]-0.5
 				# zdist = 0.030 - ((400.0 + nose_3d[2])/10000.0) # arbitrary offset
-				zdiff = 10*nose_3d[2]/10000.0 + 0.01 # simple-face
+				zdiff = 4*(15*nose_3d[2]/10000.0 + 0.01 + 0.35) # simple-face
 				cv2.putText(image, "xdiff: "+str(np.round(xdiff, 3)), (400, 200), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 				cv2.putText(image, "ydiff: "+str(np.round(ydiff, 3)), (400, 250), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 				cv2.putText(image, "zdiff: "+str(np.round(zdiff, 3)), (400, 300), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)

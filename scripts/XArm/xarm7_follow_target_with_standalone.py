@@ -107,9 +107,15 @@ def main():
     xarm_socket.start_rxsocket()
 
     safe_zone = [
-        (0.3, -0.3, 0.3), # back bottom right 
-        (0.6, 0.3, 0.625) # top front left
+        (0.3, -0.3, 0.3), # back left bottom 
+        (0.6, 0.3, 0.625) # front right top
                         ]
+
+    # safe_zone = [
+    #     (0.2, -0.4, 0.1), # back left bottom 
+    #     (0.6, 0.4, 0.625) # front right top
+    #                     ]
+
     max_range = 0.7
     min_range = 0.3
     min_height = 0.1
@@ -186,13 +192,13 @@ def main():
 
                 # local_face_rot = get_quaternion_from_euler(rz_rad, rx_rad, ry_rad)
                 local_face_rot = get_quaternion_from_euler(ry_rad, rx_rad, rz_rad)
-                local_face_pos = [xarm_socket.dy, xarm_socket.dx, 0.4+xarm_socket.dz]
+                local_face_pos = [xarm_socket.dy, xarm_socket.dx, xarm_socket.dz]
                 face_cube.set_local_pose(translation=np.array(local_face_pos))
                 face_cube.set_local_pose(orientation=np.array(local_face_rot))
                 
                 face_pose, face_rot = face_cube.get_world_pose()
 
-                a = 0.97
+                a = 0.9
                 b = 1.0-a
                 
                 newpose = [ 
@@ -208,19 +214,24 @@ def main():
                     a*qrot[3]+b*face_rot[3],
                 ]
 
+                newrot = get_new_target_orientation([newpose[0], newpose[1], newpose[2]-0.3])
+                # newrot = get_new_target_orientation(newpose)
+
                 # newpose = [ pos[0]+xarm_socket.dz, pos[1]+xarm_socket.dx, pos[2]+xarm_socket.dy]
                 
-                newpose[0] = np.clip(newpose[0], safe_zone[0][0], safe_zone[1][0])
-                newpose[1] = np.clip(newpose[1], safe_zone[0][1], safe_zone[1][1])
-                newpose[2] = np.clip(newpose[2], safe_zone[0][2], safe_zone[1][2])
+                # newpose[0] = np.clip(newpose[0], safe_zone[0][0], safe_zone[1][0])
+                # newpose[1] = np.clip(newpose[1], safe_zone[0][1], safe_zone[1][1])
+                # newpose[2] = np.clip(newpose[2], safe_zone[0][2], safe_zone[1][2])
+
+
                 # print("pose", pos, "->", newpose, end="")
 
                 # cube.set_world_pose(pos, np.array(newrot))
                 # cube.set_world_pose(np.array(newpose), np.array(newrot))
                 # print("set.")
 
-                # cube.set_world_pose(newpose, newrot)
-                cube.set_world_pose(newpose)
+                cube.set_world_pose(newpose, newrot)
+                # cube.set_world_pose(newpose)
 
                 xarm_socket.dx = None
                 xarm_socket.dy = None

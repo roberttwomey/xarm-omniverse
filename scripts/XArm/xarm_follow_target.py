@@ -76,11 +76,13 @@ class XArmFollowTarget(tasks.FollowTarget):
         if self.xarm_version == 5:
             prim_path = "/World/XArm5"
             name = "xarm5"
-            positions=np.array([-np.pi / 2, -np.pi / 2, -np.pi / 2, np.pi / 2, 0])
+            #positions=np.array([-np.pi / 2, -np.pi / 2, -np.pi / 2, np.pi / 2, 0])
+            positions=np.array([0, 0, 0, 0, 0])
         elif self.xarm_version == 7:
             prim_path = "/World/XArm7"
             name = "xarm7"
-            positions=np.array([-np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2, np.pi / 2, 0])
+            # positions=np.array([-np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2, np.pi / 2, 0])
+            positions=np.array([0, 0, 0, 0, 0, 0, 0])
 
         self._xarm = XArm(prim_path=prim_path, name=name, version=self.xarm_version)
 

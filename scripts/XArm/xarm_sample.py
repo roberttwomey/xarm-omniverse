@@ -41,7 +41,6 @@ class XArmSample(BaseSample):
             (0.6, 0.3, 0.625) # top front left
                            ]
 
-
     def set_xarm_version(self, xarm_version):
         self._xarm_version = xarm_version
         if self._xarm_version == 5:
