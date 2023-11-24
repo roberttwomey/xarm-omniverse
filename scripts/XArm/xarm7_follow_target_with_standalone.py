@@ -16,6 +16,7 @@ from XArm.xarm_follow_target import XArmFollowTarget
 from XArm.xarm_rmpflow_controller import XArmRMPFlowController
 from XArm.xarm_socket import XArmSocket
 import numpy as np
+import math
 import time
 
 import omni
@@ -32,7 +33,7 @@ def get_quaternion_from_euler(roll, pitch, yaw):
         :param yaw: The yaw (rotation around z-axis) angle in radians.
     
     Output
-        :return qx, qy, qz, qw: The orientation in quaternion [w,x,y,z] format
+        :return qw, qx, qy, qz: The orientation in quaternion [w,x,y,z] format
     """
     qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
     qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
@@ -62,6 +63,18 @@ def get_new_target_orientation(position):
         sin_half_angle * rotation_axis[2]
     ])
     return quaternion
+
+def get_new_target_orientation2(position):
+    x, y, z = position
+    # extension = np.linalg.norm(position)
+    rotation = math.atan(y/x)
+    elevation = math.atan(z/x) 
+
+    roll = 0
+    pitch = elevation*-1.0 +(0.5*math.pi) # pitch of target is 90deg - how high target is above ground plane
+    yaw = rotation # yaw of target is rotation around vertical axis. front is 0.
+
+    return get_quaternion_from_euler(roll, pitch, yaw)
 
 def main():
     xarm_version = 7
@@ -120,7 +133,7 @@ def main():
     min_range = 0.3
     min_height = 0.1
 
-    last_face_seen_timeout = 1
+    last_face_seen_timeout = 0.5 # 1
     last_face_seen_time = 0 
 
     last_rand_target_timeout = 5
@@ -206,32 +219,43 @@ def main():
                     a*pos[1]+b*face_pose[1],
                     a*pos[2]+b*face_pose[2]
                     ]
-                
-                newrot = [
-                    a*qrot[0]+b*face_rot[0],
-                    a*qrot[1]+b*face_rot[1],
-                    a*qrot[2]+b*face_rot[2],
-                    a*qrot[3]+b*face_rot[3],
-                ]
 
-                newrot = get_new_target_orientation([newpose[0], newpose[1], newpose[2]-0.3])
-                # newrot = get_new_target_orientation(newpose)
+                # lerp between current pose and face pose                
+                # newrot = [
+                #     a*qrot[0]+b*face_rot[0],
+                #     a*qrot[1]+b*face_rot[1],
+                #     a*qrot[2]+b*face_rot[2],
+                #     a*qrot[3]+b*face_rot[3],
+                # ]
 
-                # newpose = [ pos[0]+xarm_socket.dz, pos[1]+xarm_socket.dx, pos[2]+xarm_socket.dy]
+                # recenter calculated pose to be 0.3m off of the table
+                newpose_r = [newpose[0], newpose[1], newpose[2]-0.3]
                 
+                # get target orientation based off of position relative to center
+                newrot = get_new_target_orientation2(newpose_r)
+                # newrot = get_new_target_orientation(newpose_r)
+
+
+                # limits based on minimum and maximum range and elevation
+                range = np.linalg.norm(newpose_r)
+                if range < min_range:
+                    newpose_r = newpose_r / np.linalg.norm(newpose_r) * min_range
+                elif range > max_range:
+                    newpose_r = newpose_r / np.linalg.norm(newpose_r) * max_range
+
+                newpose = [newpose_r[0], newpose_r[1], newpose_r[2]+0.3]
+
+                # limits based on acceptable box
                 # newpose[0] = np.clip(newpose[0], safe_zone[0][0], safe_zone[1][0])
                 # newpose[1] = np.clip(newpose[1], safe_zone[0][1], safe_zone[1][1])
                 # newpose[2] = np.clip(newpose[2], safe_zone[0][2], safe_zone[1][2])
 
-
                 # print("pose", pos, "->", newpose, end="")
 
                 # cube.set_world_pose(pos, np.array(newrot))
-                # cube.set_world_pose(np.array(newpose), np.array(newrot))
+                cube.set_world_pose(np.array(newpose), np.array(newrot))
+                
                 # print("set.")
-
-                cube.set_world_pose(newpose, newrot)
-                # cube.set_world_pose(newpose)
 
                 xarm_socket.dx = None
                 xarm_socket.dy = None
