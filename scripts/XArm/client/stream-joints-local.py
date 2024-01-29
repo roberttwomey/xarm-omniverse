@@ -1,6 +1,7 @@
 import socket
 import math
 import time
+import numpy as np
 
 mysocket = socket.socket()
 mysocket.connect(('127.0.0.1',12345))
@@ -30,11 +31,6 @@ from xarm.wrapper import XArmAPI
 arm = XArmAPI('192.168.4.15')
 arm.motion_enable(enable=True)
 arm.set_mode(0)
-arm.set_state(state=0)
-
-# arm.reset(wait=True)
-
-arm.set_mode(1)
 arm.set_state(0)
 time.sleep(0.1)
 
@@ -125,11 +121,22 @@ try:
         # print(joints)
         joints_deg = [math.degrees(joint) for joint in joints]
         
+        # curr = arm.get_servo_angle(is_radian=False)    
+        # joint_diff = np.subtract(joints_deg, curr[1])
+        # joint_diff = [np.clip(a - b, -0.1, 0.1) for a, b in zip(joints_deg, curr[1])]
+
+        # new_joints = [a+b for a, b in zip(joint_diff, joints_deg)]
+        # print(joint_diff)
+
         if arm.connected and arm.state != 4:
             code = arm.set_servo_angle_j(joints, is_radian=True)
+            # code = arm.set_servo_angle_j(new_joints)
+            
         # count = count + 1
         # if count %5 == 0:
             # print("moved to", joints_deg)
+
+        last_time = time.time()
         
 except KeyboardInterrupt:
     print("closing socket...")
