@@ -133,6 +133,14 @@ def main():
     last_face_seen_timeout = 0.5 # 1
     last_face_seen_time = 0 
 
+    last_nudge = 0
+    nudge_timeout = 2.0                     
+    idle = [
+        np.random.uniform(-0.2, 0.2), 
+        np.random.uniform(-0.2, 0.2),
+        np.random.uniform(-0.2, 0.2)
+    ]
+
     # safe_zone = [
     #     (0.2, -0.4, 0.1), # back left bottom 
     #     (0.6, 0.4, 0.625) # front right top
@@ -304,10 +312,20 @@ def main():
                 a = 0.99
                 b = 1.0-a
 
+                # idle = [0.01*np.sin(current_time*5), 0.01*np.sin(current_time*4.75), 0]
+                if current_time > last_nudge+nudge_timeout:                     
+                    idle = [
+                        np.random.uniform(-0.05, 0.05), 
+                        np.random.uniform(-0.1, 0.1),
+                        np.random.uniform(-0.1, 0.1)
+                    ]
+                    last_nudge = time.time()
+                    nudge_timeout = np.random.uniform(2.0, 6.0)
+
                 newpose = [ 
-                    a*pos[0]+b*xarm_task.target_start[0], 
-                    a*pos[1]+b*xarm_task.target_start[1],
-                    a*pos[2]+b*xarm_task.target_start[2]
+                    a*pos[0]+b*(xarm_task.target_start[0]+idle[0]), 
+                    a*pos[1]+b*(xarm_task.target_start[1]+idle[1]),
+                    a*pos[2]+b*(xarm_task.target_start[2]+idle[2])
                     ]
                 
                 newrot = [
@@ -320,8 +338,14 @@ def main():
                 newpose[0] = np.clip(newpose[0], safe_zone[0][0], safe_zone[1][0])
                 newpose[1] = np.clip(newpose[1], safe_zone[0][1], safe_zone[1][1])
                 newpose[2] = np.clip(newpose[2], safe_zone[0][2], safe_zone[1][2])
+
+                # recenter calculated pose to be 0.3m off of the table
+                newpose_r = [newpose[0], newpose[1], newpose[2]-0.3]
+
+                updated_quaternion = get_new_target_orientation(newpose_r)
                 
-                cube.set_world_pose(np.array(newpose), np.array(newrot))
+                # cube.set_world_pose(np.array(newpose), np.array(newrot))
+                cube.set_world_pose(np.array(newpose), np.array(updated_quaternion))
 
         xarm_socket.cam_to_nose=None
         xarm_socket.face_direction=None
