@@ -51,7 +51,7 @@ def error_warn_change_callback(data):#
         pprint('err={}, quit'.format(data['error_code']))
         arm.release_error_warn_changed_callback(error_warn_change_callback)
 arm.register_error_warn_changed_callback(error_warn_change_callback)
-180 degrees per second in radians
+
 
 # Register state changed callback
 def state_changed_callback(data):
@@ -105,7 +105,11 @@ arm.set_mode(1)
 arm.set_state(0)
 time.sleep(0.1)
 
-count = 0180 degrees per second in radianse = data.decode()
+count = 0
+try:
+    while True and code == 0:
+        data = mysocket.recv(1024)
+        message = data.decode()
         if message == "Done":
             break
         # print(message)

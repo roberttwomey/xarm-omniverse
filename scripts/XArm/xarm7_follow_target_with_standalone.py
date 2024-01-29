@@ -340,12 +340,12 @@ def main():
                 newpose[2] = np.clip(newpose[2], safe_zone[0][2], safe_zone[1][2])
 
                 # recenter calculated pose to be 0.3m off of the table
-                newpose_r = [newpose[0], newpose[1], newpose[2]-0.3]
+                # newpose_r = [newpose[0], newpose[1], newpose[2]-0.3]
+                # updated_quaternion = get_new_target_orientation2(newpose_r)                
+                # cube.set_world_pose(np.array(newpose), np.array(updated_quaternion))
 
-                updated_quaternion = get_new_target_orientation2(newpose_r)
+                cube.set_world_pose(np.array(newpose), np.array(newrot))
                 
-                # cube.set_world_pose(np.array(newpose), np.array(newrot))
-                cube.set_world_pose(np.array(newpose), np.array(updated_quaternion))
 
         xarm_socket.cam_to_nose=None
         xarm_socket.face_direction=None
