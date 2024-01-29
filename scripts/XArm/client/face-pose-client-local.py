@@ -44,6 +44,8 @@ drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 cap = cv2.VideoCapture(0)
 # cap = cv2.VideoCapture(1)
 
+cv2.namedWindow('Head Pose Estimation', flags=cv2.WINDOW_GUI_NORMAL)
+
 count = 0
 try: 
 	while cap.isOpened():
@@ -167,7 +169,11 @@ try:
 				xdiff = nose_norm[0]-0.5
 				ydiff = nose_norm[1]-0.5
 				# zdist = 0.030 - ((400.0 + nose_3d[2])/10000.0) # arbitrary offset
-				zdiff = 4*(15*nose_3d[2]/10000.0 + 0.01 + 0.35) # simple-face
+				# zdiff = 4*(15*nose_3d[2]/10000.0 + 0.01 + 0.35) # simple-face
+				zdiff = 4*(15*nose_3d[2]/10000.0 + 0.01 + 0.35)-0.7 # INCOSE IW 2024
+				# if (zdiff < 0):
+					# print(zdiff)
+					# zdiff = 0
 				cv2.putText(image, "xdiff: "+str(np.round(xdiff, 3)), (400, 200), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 				cv2.putText(image, "ydiff: "+str(np.round(ydiff, 3)), (400, 250), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 				cv2.putText(image, "zdiff: "+str(np.round(zdiff, 3)), (400, 300), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)

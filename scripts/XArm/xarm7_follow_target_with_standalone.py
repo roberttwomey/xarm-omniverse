@@ -124,18 +124,19 @@ def main():
         (0.6, 0.3, 0.625) # front right top
                         ]
 
-    # safe_zone = [
-    #     (0.2, -0.4, 0.1), # back left bottom 
-    #     (0.6, 0.4, 0.625) # front right top
-    #                     ]
-
     max_range = 0.7
     min_range = 0.3
     min_height = 0.1
 
+    # set maximum angle movement here
+
     last_face_seen_timeout = 0.5 # 1
     last_face_seen_time = 0 
 
+    # safe_zone = [
+    #     (0.2, -0.4, 0.1), # back left bottom 
+    #     (0.6, 0.4, 0.625) # front right top
+    #      
     last_rand_target_timeout = 5
     last_rand_target_time = 0 
 
@@ -300,7 +301,7 @@ def main():
                 # cube = world.scene.get_object("target")
                 pos, qrot = cube.get_world_pose()
 
-                a = 0.97
+                a = 0.99
                 b = 1.0-a
 
                 newpose = [ 
