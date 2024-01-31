@@ -133,7 +133,7 @@ cd ~/work/xarm-omniverse/scripts/XArm/client
 python face-pose-client.py --no-socket
 ```
 
-# Running Standalone from the Terminal
+# Running Xarm 7 Standalone from the Terminal
 
 Open three terminal windows. 
 
@@ -162,6 +162,10 @@ cd /home/user/work/xarm-omniverse/scripts/XArm/client
 conda activate xarm
 python face-pose-client-local.py
 ```
+
+# Running Xarm 5 Standalone from the Terminal
+
+TBD
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
