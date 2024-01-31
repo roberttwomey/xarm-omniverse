@@ -86,6 +86,7 @@ This project was built using the following.
 4. Enable the XArm Follow Target Extension and check the Autoload setting. The XArm Follow Target Extension will now appear on the top menu bar of the Isaac Sim Application.
 5. Click the XArm Follow Target to use the Extension
 
+# Run it on Kubernetes / Nautilus
 Port Forward local ports to the Container for the realsense camera client. 
 - once you have a XGL container running you will need to use the kubernetes CLI to get the specific pod name. This can be done with 
 
