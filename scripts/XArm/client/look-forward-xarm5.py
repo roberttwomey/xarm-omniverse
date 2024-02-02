@@ -49,7 +49,7 @@ def pprint(*args, **kwargs):
 # [3] -97°～180°        4th joint / head U/D
 # [4] ±360°     head turn L/R
 
-frontForwardAngle = [0, 2.5, -37.3, -57.3, -180]
+frontForwardAngle = [0, 2.5, -37.3, -57.3, 90]
 frontBackAngle = [0.0,-45.0,0.0,-45.0,0.0]
 stretchout = [-350.0, 0, -180, 45, 45]
 
