@@ -314,10 +314,15 @@ def main():
 
                 # idle = [0.01*np.sin(current_time*5), 0.01*np.sin(current_time*4.75), 0]
                 if current_time > last_nudge+nudge_timeout:                     
+                    # idle = [
+                    #     np.random.uniform(-0.05, 0.05), 
+                    #     np.random.uniform(-0.1, 0.1),
+                    #     np.random.uniform(-0.1, 0.1)
+                    # ]
                     idle = [
-                        np.random.uniform(-0.05, 0.05), 
-                        np.random.uniform(-0.1, 0.1),
-                        np.random.uniform(-0.1, 0.1)
+                        0, 
+                        0,
+                        0
                     ]
                     last_nudge = time.time()
                     nudge_timeout = np.random.uniform(2.0, 6.0)
