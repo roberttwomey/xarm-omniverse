@@ -19,8 +19,7 @@ import random
 import traceback
 import threading
 
-# IKFast for xarm 7
-import numpy as np
+
 
 """
 # xArm-Python-SDK: https://github.com/xArm-Developer/xArm-Python-SDK
@@ -42,13 +41,22 @@ def pprint(*args, **kwargs):
     except:
         print(*args, **kwargs)
 
-frontForwardAngle = [0, 2.5, 0, 37.3, 0, -57.3, 0]
-frontBackAngle = [0.0,-45.0,0.0,0.0,0.0,-45.0,0.0]
+#ignore joint 3 and joint 5 when converting (maybe ?)
+
+# [0] ±360°         1st joint  main L/R turn 
+# [1] -118 ~ 120    2nd joint U/D (- is tilt up. dont overdo in the positive)
+# [2] -225°～11°    3rd joint U/D (- is tilt up. might have to flip + to -)
+# [3] -97°～180°        4th joint / head U/D
+# [4] ±360°     head turn L/R
+
+frontForwardAngle = [0, 2.5, -37.3, -57.3, -180]
+frontBackAngle = [0.0,-45.0,0.0,-45.0,0.0]
+stretchout = [-350.0, 0, -180, 45, 45]
 
 
 pprint('xArm-Python-SDK Version:{}'.format(version.__version__))
 
-arm = XArmAPI('192.168.4.15')
+arm = XArmAPI('192.168.1.223')
 arm.clean_warn()
 arm.clean_error()
 arm.motion_enable(True)
@@ -57,10 +65,10 @@ arm.set_state(0)
 time.sleep(1)
 
 variables = {}
-params = {'speed': 50, 'acc': 2000, 'angle_speed': 20, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
+params = {'speed': 50, 'acc': 2000, 'angle_speed': 40, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
 
-params['angle_acc'] = 50
-params['angle_speed'] = 1000
+params['angle_acc'] = 1000
+params['angle_speed'] = 40
 
 # Register error/warn changed callback
 def error_warn_change_callback(data):
@@ -97,59 +105,19 @@ def connect_changed_callback(data):
         arm.release_connect_changed_callback(error_warn_change_callback)
 arm.register_connect_changed_callback(connect_changed_callback)
 
-# Rotation
-if not params['quit']:
-    # params['angle_acc'] = 1145
-    # params['angle_speed'] = 80
-    # if params['quit']:
     
-    if arm.error_code == 0 and not params['quit']:
-        # code = arm.set_servo_angle(angle=[0.1, -34.9, -0.1, 1.6, 0, -63.5, 0.1], speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
-        code = arm.set_servo_angle(angle=frontForwardAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
+if arm.error_code == 0 and not params['quit']:
+    # code = arm.set_servo_angle(angle=[0.1, -34.9, -0.1, 1.6, 0, -63.5, 0.1], speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
+    code = arm.set_servo_angle(angle=frontForwardAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
 
-        if code != 0:
-            params['quit'] = True
-            pprint('set_servo_angle, code={}'.format(code))
+    if code != 0:
+        params['quit'] = True
+        pprint('set_servo_angle, code={}'.format(code))
 
 
 # look forward but retracted
-code = arm.set_servo_angle(angle=frontBackAngle, peed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
-
+# code = arm.set_servo_angle(angle=frontBackAngle, peed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
 # print(arm.get_position(), arm.get_position(is_radian=True))
-
-# angles = list(np.radians(frontForwardAngle))
-# angles = list(np.radians(frontBackAngle))
-# print("start (joints): ", angles)
-# translate, rotate  = pyikfast.forward(angles)
-# print("start pos (translate, rotate): ", translate, rotate, "\n")
-
-# translate = [0.400, 0.0, 0.400]
-
-# results = pyikfast.inverse(translate, rotate)
-
-# for result in results: 
-#     theseangles = list(result)
-#     print("final angles (IK joints): ", theseangles)
-
-# finalangles = list(np.degrees(results[3]))
-
-# arm.set_servo_angle(angle=finalangles, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
-
-# translate, rotate  = pyikfast.forward(angles)
-# print("final FK (translate, rotate): ", translate, rotate, "\n")
-
-
-# frontBackAngle = [0.0,-45.0,0.0,0.0,0.0,-45.0,0.0]
-# angles = np.radians(frontBackAngle)
-
-# print("start (joints): ", angles)
-
-# translate, rotate  = pyikfast.forward(list(angles))
-
-# print("FK (translate, rotate): ", translate, rotate, "\n")
-
-# joints = pyikfast.inverse(translate, rotate)
-
 
 
 
