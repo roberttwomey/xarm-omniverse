@@ -93,6 +93,7 @@ arm.motion_enable(True)
 arm.set_mode(0)
 arm.set_state(0)
 
+# move to the omniverse start position
 code = arm.set_servo_angle(angle=omniStartAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
 
 if code != 0:
@@ -105,6 +106,7 @@ arm.set_mode(1)
 arm.set_state(0)
 time.sleep(0.1)
 
+# start streaming joints from omniverse
 count = 0
 try:
     while True and code == 0:
