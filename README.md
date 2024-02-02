@@ -165,8 +165,6 @@ python face-pose-client-local.py
 
 # Running Xarm 5 Standalone from the Terminal
 
-(not final and subject to change)
-
 Open three terminal windows. 
 
 ## 1. Run Isaac Sim
@@ -179,10 +177,17 @@ cd /home/user/work/xarm-omniverse/scripts/XArm
 
 ## 2. Run Joint Streaming
 
-this streams joints from isaac sim to the xarm: 
+
 ```bash
 cd /home/user/work/xarm-omniverse/scripts/XArm/client
 conda activate xarm
+```
+This smoothly orients the xArm5 close to the starting position of the client to avoid extremely fast movement:
+```bash
+python look-forward-xarm5
+```
+this streams joints from isaac sim to the xarm: 
+```bash
 python stream-joints-xarm5.py
 ```
 
@@ -194,6 +199,11 @@ cd /home/user/work/xarm-omniverse/scripts/XArm/client
 conda activate xarm
 python face-pose-client-local.py
 ```
+
+## Stopping the Face Tracking
+ctrl+c in the JOINT STREAMING terminal window FIRST. Doing so in the face pose client will cause the xarm to move rapidly and throw errors.
+
+After, then ctrl+c in face pose client terminal and Isaac Sim
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
