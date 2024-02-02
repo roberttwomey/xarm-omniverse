@@ -184,7 +184,7 @@ conda activate xarm
 ```
 This smoothly orients the xArm5 close to the starting position of the client to avoid extremely fast movement:
 ```bash
-python look-forward-xarm5
+python look-forward-xarm5.py
 ```
 this streams joints from isaac sim to the xarm: 
 ```bash
