@@ -165,7 +165,35 @@ python face-pose-client-local.py
 
 # Running Xarm 5 Standalone from the Terminal
 
-TBD
+(not final and subject to change)
+
+Open three terminal windows. 
+
+## 1. Run Isaac Sim
+
+this runs isaac sim from the command line:  
+```bash
+cd /home/user/work/xarm-omniverse/scripts/XArm
+/home/user/.local/share/ov/pkg/isaac_sim-2022.2.1/python.sh xarm5_follow_target_with_standalone.py
+```
+
+## 2. Run Joint Streaming
+
+this streams joints from isaac sim to the xarm: 
+```bash
+cd /home/user/work/xarm-omniverse/scripts/XArm/client
+conda activate xarm
+python stream-joints-xarm5.py
+```
+
+
+## 3. Run Face Tracking
+this tracks the face and updates the follow target: 
+```bash
+cd /home/user/work/xarm-omniverse/scripts/XArm/client
+conda activate xarm
+python face-pose-client-local.py
+```
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
