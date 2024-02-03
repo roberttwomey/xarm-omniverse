@@ -140,12 +140,13 @@ try:
         
         # joint_diff = [np.clip(a - b, -0.1, 0.1) for a, b in zip(joints_deg, curr[1])]
 
-        new_joints = [a+b for a, b in zip(joint_diff, joints_deg)]
+        new_joints_deg = [a+b for a, b in zip(joint_diff, joints_deg)]
+        new_joints = [math.radians(joint) for joint in new_joints_deg]
         # print(joint_diff)
 
         if arm.connected and arm.state != 4:
             # code = arm.set_servo_angle_j(joints, is_radian=True)
-            code = arm.set_servo_angle_j(new_joints, is_radian=False)
+            code = arm.set_servo_angle_j(new_joints, is_radian=True)
             
         # count = count + 1
         # if count %5 == 0:
