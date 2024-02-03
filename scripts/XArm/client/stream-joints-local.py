@@ -40,10 +40,10 @@ time.sleep(0.1)
 # frontForwardAngle = [0, 2.5, 0, 37.3, 0, -57.3, -179.0]
 # omniStartAngle = [0, 2.5, 0, 37.3, 0, -57.3, -179.0]
 omniStartAngle = [-6.838786670630505, -15.210568319335351, 6.733042535674014, 37.296668019488585, 179.41233553276842, 37.60242485277879, 2.225478402831139]
-XARM_MAX_JOINT_SPEED = 180.0 # deg/sec
+XARM_MAX_JOINT_SPEED = 45.0#180.0 # deg/sec
 
 variables = {}
-params = {'speed': 100, 'acc': 2000, 'angle_speed': 100, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
+params = {'speed': 100, 'acc': 2000, 'angle_speed':100, 'angle_acc': 1000, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
 
 # Register error/warn changed callback
 def error_warn_change_callback(data):#
@@ -99,12 +99,15 @@ arm.set_state(0)
 
 # move to the omniverse start position
 print("moving to start position...", end="")
-code = arm.set_servo_angle(angle=omniStartAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
+code = arm.set_servo_angle(servo_id=None, angle=omniStartAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
+# code = arm.set_servo_angle(servo_id=None, angle=omniStartAngle, speed=0.5, mvacc=10.0, wait=True, radius=-1.0, is_radian=False)
+
 print("done.")
 
 if code != 0:
     print("Error moving to start position")
     print('set_servo_angle, code={}'.format(code))
+    exit()
 
 arm.set_mode(1)
 arm.set_state(0)
@@ -112,6 +115,8 @@ time.sleep(0.1)
 
 # start streaming joints from omniverse
 count = 0
+last_time = time.time()
+
 try:
     while True and code == 0:
         data = mysocket.recv(1024)
@@ -134,9 +139,12 @@ try:
         max_joint_diff = np.max(joint_diff)
         time_step = last_time-time.time()
         this_max_joint_speed = max_joint_diff/time_step
+        # print("max", this_max_joint_speed)
 
-        if this_max_joint_speed > XARM_MAX_JOINT_SPEED:
-            joint_diff = np.divide(joint_diff, (this_max_joint_speed/XARM_MAX_JOINT_SPEED))
+        if abs(this_max_joint_speed) > XARM_MAX_JOINT_SPEED:
+            print(joint_diff)
+            joint_diff = np.divide(joint_diff, (abs(this_max_joint_speed)/XARM_MAX_JOINT_SPEED))
+            print("limited: ", joint_diff)
         
         # joint_diff = [np.clip(a - b, -0.1, 0.1) for a, b in zip(joints_deg, curr[1])]
 
