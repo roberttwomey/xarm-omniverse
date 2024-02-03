@@ -1,3 +1,12 @@
+
+
+"""
+# xArm-Python-SDK: https://github.com/xArm-Developer/xArm-Python-SDK
+# git clone git@github.com:xArm-Developer/xArm-Python-SDK.git
+# cd xArm-Python-SDK
+# python setup.py install
+"""
+
 import socket
 import math
 import time
@@ -7,13 +16,6 @@ mysocket = socket.socket()
 mysocket.connect(('127.0.0.1',12345))
 # mysocket.connect(('192.168.4.5',12345))
 
-
-"""
-# xArm-Python-SDK: https://github.com/xArm-Developer/xArm-Python-SDK
-# git clone git@github.com:xArm-Developer/xArm-Python-SDK.git
-# cd xArm-Python-SDK
-# python setup.py install
-"""
 try:
     from xarm.tools import utils
 except:
@@ -38,11 +40,10 @@ time.sleep(0.1)
 # frontForwardAngle = [0, 2.5, 0, 37.3, 0, -57.3, -179.0]
 # omniStartAngle = [0, 2.5, 0, 37.3, 0, -57.3, -179.0]
 omniStartAngle = [-6.838786670630505, -15.210568319335351, 6.733042535674014, 37.296668019488585, 179.41233553276842, 37.60242485277879, 2.225478402831139]
-                  
+XARM_MAX_JOINT_SPEED = 180.0 # deg/sec
 
 variables = {}
-params = {'speed': 100, 'acc': 2000, 'angle_speed': 20, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
-
+params = {'speed': 100, 'acc': 2000, 'angle_speed': 100, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
 
 # Register error/warn changed callback
 def error_warn_change_callback(data):#
@@ -60,6 +61,7 @@ def state_changed_callback(data):
             params['quit'] = True
             pprint('state=4, quit')
             arm.release_state_changed_callback(state_changed_callback)
+
 arm.register_state_changed_callback(state_changed_callback)
 
 
@@ -77,6 +79,7 @@ def connect_changed_callback(data):
         params['quit'] = True
         pprint('disconnect, connected={}, reported={}, quit'.format(data['connected'], data['reported']))
         arm.release_connect_changed_callback(error_warn_change_callback)
+
 arm.register_connect_changed_callback(connect_changed_callback)
 
 
@@ -93,14 +96,15 @@ arm.motion_enable(True)
 arm.set_mode(0)
 arm.set_state(0)
 
+
 # move to the omniverse start position
+print("moving to start position...", end="")
 code = arm.set_servo_angle(angle=omniStartAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
+print("done.")
 
 if code != 0:
     print("Error moving to start position")
     print('set_servo_angle, code={}'.format(code))
-# code = 0
-
 
 arm.set_mode(1)
 arm.set_state(0)
@@ -123,16 +127,25 @@ try:
         # print(joints)
         joints_deg = [math.degrees(joint) for joint in joints]
         
-        # curr = arm.get_servo_angle(is_radian=False)    
-        # joint_diff = np.subtract(joints_deg, curr[1])
+        curr = arm.get_servo_angle(is_radian=False)    
+        joint_diff = np.subtract(joints_deg, curr[1])
+
+        # cap largest joint movement to xarm max angle speed
+        max_joint_diff = np.max(joint_diff)
+        time_step = last_time-time.time()
+        this_max_joint_speed = max_joint_diff/time_step
+
+        if this_max_joint_speed > XARM_MAX_JOINT_SPEED:
+            joint_diff = np.divide(joint_diff, (this_max_joint_speed/XARM_MAX_JOINT_SPEED))
+        
         # joint_diff = [np.clip(a - b, -0.1, 0.1) for a, b in zip(joints_deg, curr[1])]
 
-        # new_joints = [a+b for a, b in zip(joint_diff, joints_deg)]
+        new_joints = [a+b for a, b in zip(joint_diff, joints_deg)]
         # print(joint_diff)
 
         if arm.connected and arm.state != 4:
-            code = arm.set_servo_angle_j(joints, is_radian=True)
-            # code = arm.set_servo_angle_j(new_joints)
+            # code = arm.set_servo_angle_j(joints, is_radian=True)
+            code = arm.set_servo_angle_j(new_joints, is_radian=False)
             
         # count = count + 1
         # if count %5 == 0:
