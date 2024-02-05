@@ -40,7 +40,7 @@ time.sleep(0.1)
 # frontForwardAngle = [0, 2.5, 0, 37.3, 0, -57.3, -179.0]
 # omniStartAngle = [0, 2.5, 0, 37.3, 0, -57.3, -179.0]
 omniStartAngle = [-6.838786670630505, -15.210568319335351, 6.733042535674014, 37.296668019488585, 179.41233553276842, 37.60242485277879, 2.225478402831139]
-XARM_MAX_JOINT_SPEED = 45.0#180.0 # deg/sec
+XARM_MAX_JOINT_SPEED = 180.0 #45.0#180.0 # deg/sec
 
 variables = {}
 params = {'speed': 100, 'acc': 2000, 'angle_speed':100, 'angle_acc': 1000, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
@@ -116,6 +116,7 @@ time.sleep(0.1)
 # start streaming joints from omniverse
 count = 0
 last_time = time.time()
+last_rate = time.time()
 
 try:
     while True and code == 0:
@@ -136,15 +137,18 @@ try:
         joint_diff = np.subtract(joints_deg, curr[1])
 
         # cap largest joint movement to xarm max angle speed
+        
+        # should probably do an inner loop with a lerp here instead,
+        # stepping to the desired joint position at an appropriate speed.
         max_joint_diff = np.max(joint_diff)
         time_step = last_time-time.time()
         this_max_joint_speed = max_joint_diff/time_step
         # print("max", this_max_joint_speed)
 
         if abs(this_max_joint_speed) > XARM_MAX_JOINT_SPEED:
-            print(joint_diff)
-            joint_diff = np.divide(joint_diff, (abs(this_max_joint_speed)/XARM_MAX_JOINT_SPEED))
-            print("limited: ", joint_diff)
+            # print(joint_diff)
+            joint_diff = np.multiply(joint_diff, (XARM_MAX_JOINT_SPEED/abs(this_max_joint_speed)))
+            # print("limited: ", joint_diff)
         
         # joint_diff = [np.clip(a - b, -0.1, 0.1) for a, b in zip(joints_deg, curr[1])]
 
@@ -156,9 +160,12 @@ try:
             # code = arm.set_servo_angle_j(joints, is_radian=True)
             code = arm.set_servo_angle_j(new_joints, is_radian=True)
             
-        # count = count + 1
-        # if count %5 == 0:
-            # print("moved to", joints_deg)
+        count = count + 1
+        if count %10 == 0:
+            print("moved to", new_joints)
+            rate = (time.time()-last_rate)/10.0
+            print("----> ",1.0/rate, "hertz")
+            last_rate=time.time()
 
         last_time = time.time()
         
