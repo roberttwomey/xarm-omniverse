@@ -156,7 +156,7 @@ python stream-joints-local.py
 
 
 ## 3. Run Pose Tracking
-this tracks the face and updates the follow target: 
+this runs pose tracking and updates the follow target based on the left wrist position: 
 ```bash
 cd /home/user/work/xarm-omniverse/scripts/XArm/client
 conda activate xarm
@@ -193,7 +193,7 @@ python stream-joints-xarm5.py
 
 
 ## 3. Run Pose Tracking
-this tracks the face and updates the follow target: 
+this runs pose tracking and updates the follow target based on the left wrist position: 
 ```bash
 cd /home/user/work/xarm-omniverse/scripts/XArm/client
 conda activate xarm
