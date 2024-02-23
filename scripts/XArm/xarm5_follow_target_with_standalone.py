@@ -198,115 +198,63 @@ def main():
 
             current_time = time.time()
 
-            if xarm_socket.face_direction:
-                # update position of target from camera feed            
-                # cube = world.scene.get_object("target")
+            if xarm_socket.wrist_position:
                 pos, qrot = cube.get_world_pose()
-                # print(qrot)
-                
-                # end_pose = omni.usd.get_world_transform_matrix(xarm.end_effector)
-                # print("end effector pose", end_pose)
-
-                # rx_rad = np.deg2rad(xarm_socket.rx+90)
-                rx_rad = np.deg2rad(xarm_socket.rx)
-                ry_rad = np.deg2rad(xarm_socket.ry)
-                rz_rad = np.deg2rad(xarm_socket.rz)
-
-                # local_face_rot = get_quaternion_from_euler(rz_rad, rx_rad, ry_rad)
-                local_face_rot = get_quaternion_from_euler(ry_rad, rx_rad, rz_rad)
-                local_face_pos = [xarm_socket.dy, xarm_socket.dx, xarm_socket.dz]
-                face_cube.set_local_pose(translation=np.array(local_face_pos))
-                face_cube.set_local_pose(orientation=np.array(local_face_rot))
-                
-                face_pose, face_rot = face_cube.get_world_pose()
+                local_wrist_pos = [xarm_socket.px, xarm_socket.py, xarm_socket.pz]
 
                 a = 0.9
                 b = 1.0-a
-                
+
                 newpose = [ 
-                    a*pos[0]+b*face_pose[0], 
-                    a*pos[1]+b*face_pose[1],
-                    a*pos[2]+b*face_pose[2]
+                    a*pos[0]+b*local_wrist_pos[0], 
+                    a*pos[1]+b*local_wrist_pos[1],
+                    a*pos[2]+b*local_wrist_pos[2]
+                    # local_wrist_pos[0], 
+                    # local_wrist_pos[1],
+                    # local_wrist_pos[2]
                     ]
-
-                # lerp between current pose and face pose                
-                # newrot = [
-                #     a*qrot[0]+b*face_rot[0],
-                #     a*qrot[1]+b*face_rot[1],
-                #     a*qrot[2]+b*face_rot[2],
-                #     a*qrot[3]+b*face_rot[3],
-                # ]
-
-                # recenter calculated pose to be 0.3m off of the table
-                newpose_r = [newpose[0], newpose[1], newpose[2]-0.3]
-                
-                # get target orientation based off of position relative to center
-                newrot = get_new_target_orientation2(newpose_r)
-                # newrot = get_new_target_orientation(newpose_r)
-
-
-                # limits based on minimum and maximum range and elevation
-                range = np.linalg.norm(newpose_r)
-                if range < min_range:
-                    newpose_r = newpose_r / np.linalg.norm(newpose_r) * min_range
-                elif range > max_range:
-                    newpose_r = newpose_r / np.linalg.norm(newpose_r) * max_range
-
-                newpose = [newpose_r[0], newpose_r[1], newpose_r[2]+0.3]
-
-                # limits based on acceptable box
-                # newpose[0] = np.clip(newpose[0], safe_zone[0][0], safe_zone[1][0])
-                # newpose[1] = np.clip(newpose[1], safe_zone[0][1], safe_zone[1][1])
-                # newpose[2] = np.clip(newpose[2], safe_zone[0][2], safe_zone[1][2])
-
-                # print("pose", pos, "->", newpose, end="")
-
-                # cube.set_world_pose(pos, np.array(newrot))
-                cube.set_world_pose(np.array(newpose), np.array(newrot))
+                cube.set_world_pose(np.array(newpose))
                 
                 # print("set.")
 
-                xarm_socket.dx = None
-                xarm_socket.dy = None
-                xarm_socket.dz = None
+                #xarm_socket.px = None
+                #xarm_socket.py = None
+                #xarm_socket.pz = None
                 last_face_seen_time = current_time
+                #print(last_face_seen_time)
 
             # elif rand_target_enabled and ( \
             #     xarm_task.task_achieved or \
             #     current_time > last_rand_target_time + last_rand_target_timeout \
             #     ) and current_time > last_face_seen_time + last_face_seen_timeout:
 
-            elif rand_target_enabled and ( \
-                xarm_task.task_achieved or \
-                current_time > last_rand_target_time + last_rand_target_timeout \
-                ) and current_time > last_face_seen_time + last_face_seen_timeout:
+            #     # set random location
+            #     # cube = world.scene.get_object("target")
 
-                # set random location
-                # cube = world.scene.get_object("target")
+            #     randpos = [
+            #         np.random.uniform(-1, 1), 
+            #         np.random.uniform(-1, 1),
+            #         np.random.uniform(0, 1)
+            #     ]
+            #     range = np.linalg.norm(randpos)
+            #     if range < min_range:
+            #         randpos = randpos / np.linalg.norm(randpos) * min_range
+            #     elif range > max_range:
+            #         randpos = randpos / np.linalg.norm(randpos) * max_range
 
-                randpos = [
-                    np.random.uniform(-1, 1), 
-                    np.random.uniform(-1, 1),
-                    np.random.uniform(0, 1)
-                ]
-                range = np.linalg.norm(randpos)
-                if range < min_range:
-                    randpos = randpos / np.linalg.norm(randpos) * min_range
-                elif range > max_range:
-                    randpos = randpos / np.linalg.norm(randpos) * max_range
+            #     randpos = [randpos[0], randpos[1], max(randpos[2], min_height)]
 
-                randpos = [randpos[0], randpos[1], max(randpos[2], min_height)]
+            #     updated_quaternion = get_new_target_orientation(randpos)
 
-                updated_quaternion = get_new_target_orientation(randpos)
+            #     print("Setting new target pos:"+str(randpos))
+            #     cube.set_world_pose(np.array(randpos), updated_quaternion)
 
-                print("Setting new target pos:"+str(randpos))
-                cube.set_world_pose(np.array(randpos), updated_quaternion)
-
-                last_rand_target_time = time.time()
+            #     last_rand_target_time = time.time()
 
             elif current_time > last_face_seen_time + last_face_seen_timeout:
                 # relax back to center
                 # cube = world.scene.get_object("target")
+                # print("relaxing")
                 pos, qrot = cube.get_world_pose()
 
                 a = 0.99

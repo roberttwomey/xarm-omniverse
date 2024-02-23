@@ -31,6 +31,8 @@ arm.set_mode(1)
 arm.set_state(0)
 time.sleep(0.1)
 
+omniStartAngle = [9.867756e-07, 0.10091877, -0.52330613, -1.1482699, -3.1413276]
+
 variables = {}
 params = {'speed': 100, 'acc': 2000, 'angle_speed': 20, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
 

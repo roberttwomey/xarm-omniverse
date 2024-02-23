@@ -15,9 +15,13 @@ class XArmSocket():
 
         self.cam_to_nose = None
         self.face_direction = None
+        self.wrist_position = None
         self.dx = None
         self.dy = None
         self.z = None
+        self.px = None
+        self.py = None
+        self.pz = None
         self.rx = None
         self.ry = None
         self.rz = None
@@ -75,6 +79,7 @@ class XArmSocket():
 
                 if data == b'': 
                     print("rx: socket closed.")
+                    self.wrist_position = None
                     break
 
                 # if data:
@@ -106,24 +111,24 @@ class XArmSocket():
                     # RGB Camera
                     message = data.decode()
                     # print("received:", type(message), message)
-                    y, p, r, dx, dy, dz = ast.literal_eval(message)
+                    px, py, pz = ast.literal_eval(message)
                     # print("received:", x, y, z, dx, dy)
-                    weight = 0.3  # 0.05
-                    self.dx = weight*dx
-                    self.dy = weight*dy
-                    self.dz = weight*dz
-                    # self.dx = dx
-                    # self.dy = dy
-                    # self.dz = dz
+                    weight = 0.9  # 0.05
+                    # self.dx = weight*dx
+                    # self.dy = weight*dy
+                    # self.dz = weight*dz
+                    self.px = px 
+                    self.py = py 
+                    self.pz = pz + 0.3
 
-                    self.rx = y
-                    self.ry = p
-                    self.rz = r
+                    # self.rx = y
+                    # self.ry = p
+                    # self.rz = r
                     # self.dx = dx
                     # self.dy = dy
-                    self.face_direction = [y, p, r]
+                    self.wrist_position = [px, py, pz]
                 else:
-                    self.face_direction = None
+                    self.wrist_position = None
 
 
     def shut_down_socket(self):
