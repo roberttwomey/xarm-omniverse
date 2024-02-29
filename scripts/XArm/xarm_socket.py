@@ -117,9 +117,9 @@ class XArmSocket():
                     # self.dx = weight*dx
                     # self.dy = weight*dy
                     # self.dz = weight*dz
-                    self.px = px 
+                    self.px = px + 0.15
                     self.py = py 
-                    self.pz = pz + 0.3
+                    self.pz = pz + 0.6
 
                     # self.rx = y
                     # self.ry = p

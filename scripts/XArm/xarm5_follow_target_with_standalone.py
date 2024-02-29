@@ -11,6 +11,10 @@ simulation_app = SimulationApp({"headless": False})
 from omni.isaac.core.utils.extensions import enable_extension
 enable_extension("omni.isaac.examples")
 
+import argparse
+from omni.isaac.kit import SimulationApp
+import omni
+
 from omni.isaac.core import World
 from XArm.xarm_follow_target import XArmFollowTarget
 from XArm.xarm_rmpflow_controller import XArmRMPFlowController
@@ -77,6 +81,20 @@ def get_new_target_orientation2(position):
     return get_quaternion_from_euler(roll, pitch, yaw)
 
 def main():
+    # open stage
+    omni.usd.get_context().open_stage("testscene.usd")
+
+    # wait two frames so that stage starts loading
+    simulation_app.update()
+    simulation_app.update()
+
+    print("Loading stage...")
+    from omni.isaac.core.utils.stage import is_stage_loading
+
+    while is_stage_loading():
+        simulation_app.update()
+    print("Loading Complete")
+
     xarm_version = 5
     world = World(stage_units_in_meters=1.0)
     xarm_task = XArmFollowTarget(xarm_version=xarm_version)

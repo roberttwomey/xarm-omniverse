@@ -71,9 +71,9 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
             landmarks = results.pose_world_landmarks.landmark
             
             # Get coordinates
-            shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+            shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].z]
             elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x,landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
-            wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y,landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].z]
+            wrist = [shoulder[0]-landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,shoulder[1]-landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y,shoulder[2]-landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].z]
             
             # Calculate angle
             #angle = calculate_angle(shoulder, elbow, wrist)
@@ -98,9 +98,9 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
             try:
                 count +=1
                 if count % 3 == 0:
-                    print("sending:", [wrist[0]*-1, wrist[1]*-1.0, wrist[2]*-1])
+                    print("sending:", [wrist[2]*1, wrist[0]*1.0, wrist[1]*1])
                     count = 0
-                sendData = str([wrist[2]*-1, wrist[0]*-1.0, wrist[1]*-1])
+                sendData = str([wrist[2]*1, wrist[0]*1.0, wrist[1]*1])
                 mysocket.send(sendData.encode())
             except:
                 pass           

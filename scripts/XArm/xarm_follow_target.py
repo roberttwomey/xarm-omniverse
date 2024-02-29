@@ -43,7 +43,7 @@ class XArmFollowTarget(tasks.FollowTarget):
     
     def set_up_scene(self, scene):
         super().set_up_scene(scene)
-        scene.add_default_ground_plane()
+        #scene.add_default_ground_plane()
         self._cube = scene.get_object("target")
         # cpose, crot = self._cube.get_world_pose()
         # print("cpose, crot")
