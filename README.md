@@ -155,12 +155,12 @@ python stream-joints-local.py
 ```
 
 
-## 3. Run Face Tracking
-this tracks the face and updates the follow target: 
+## 3. Run Pose Tracking
+this runs pose tracking and updates the follow target based on the left wrist position: 
 ```bash
 cd /home/user/work/xarm-omniverse/scripts/XArm/client
 conda activate xarm
-python face-pose-client-local.py
+python wristPosition.py
 ```
 
 # Running Xarm 5 Standalone from the Terminal
@@ -192,18 +192,14 @@ python stream-joints-xarm5.py
 ```
 
 
-## 3. Run Face Tracking
-this tracks the face and updates the follow target: 
+## 3. Run Pose Tracking
+this runs pose tracking and updates the follow target based on the left wrist position: 
 ```bash
 cd /home/user/work/xarm-omniverse/scripts/XArm/client
 conda activate xarm
-python face-pose-client-local.py
+python wristPosition.py
 ```
 
-## Stopping the Face Tracking
-ctrl+c in the JOINT STREAMING terminal window FIRST. Doing so in the face pose client will cause the xarm to move rapidly and throw errors.
-
-After, then ctrl+c in face pose client terminal and Isaac Sim
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
