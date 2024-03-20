@@ -82,7 +82,7 @@ def get_new_target_orientation2(position):
 
 def main():
     # open stage
-    omni.usd.get_context().open_stage("testscene.usd")
+    omni.usd.get_context().open_stage("scene.usd")
 
     # wait two frames so that stage starts loading
     simulation_app.update()

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Ocean Sky Sphere
+* source:	https://sketchfab.com/3d-models/ocean-sky-sphere-bac4142595d54b6ab8279cee46ba2851
+* author:	trickmachine (https://sketchfab.com/trickmachine)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Ocean Sky Sphere" (https://sketchfab.com/3d-models/ocean-sky-sphere-bac4142595d54b6ab8279cee46ba2851) by trickmachine (https://sketchfab.com/trickmachine) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
