@@ -192,7 +192,15 @@ cd /home/user/work/xarm-omniverse/scripts/XArm/client
 conda activate xarm
 python face-pose-client-local.py
 ```
-
+# Changing Branches
+Change to bodypose:
+```bash
+git checkout bodypose
+```
+Change to face tracking:
+```bash
+git checkout estimate-3d
+```
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
