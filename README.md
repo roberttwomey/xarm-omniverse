@@ -199,7 +199,15 @@ cd /home/user/work/xarm-omniverse/scripts/XArm/client
 conda activate xarm
 python wristPosition.py
 ```
-
+# Changing Branches
+Change to bodypose:
+```bash
+git checkout bodypose
+```
+Change to face tracking:
+```bash
+git checkout estimate-3d
+```
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
