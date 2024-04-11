@@ -34,7 +34,7 @@ time.sleep(0.1)
 omniStartAngle = [9.867756e-07, 0.10091877, -0.52330613, -1.1482699, -3.1413276]
 
 variables = {}
-params = {'speed': 100, 'acc': 2000, 'angle_speed': 20, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
+params = {'speed': 80, 'acc': 2000, 'angle_speed': 20, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
 
 
 # Register error/warn changed callback
@@ -98,7 +98,7 @@ try:
         joints_deg = [math.degrees(joint) for joint in joints]
         
         if arm.connected and arm.state != 4:
-            arm.set_servo_angle_j(joints, is_radian=True)
+            arm.set_servo_angle_j(joints, speed=params['speed'], is_radian=True)
         
         # print("moved to", joints_deg)
         
