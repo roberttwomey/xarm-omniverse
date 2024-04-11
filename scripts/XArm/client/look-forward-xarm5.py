@@ -49,7 +49,7 @@ def pprint(*args, **kwargs):
 # [3] -97°～180°        4th joint / head U/D
 # [4] ±360°     head turn L/R
 
-frontForwardAngle = [0, 2.5, -37.3, -57.3, 180]
+frontForwardAngle = [0, 2.5, -37.3, -57.3, -180]
 frontBackAngle = [0.0,-45.0,0.0,-45.0,0.0]
 stretchout = [-350.0, 0, -180, 45, 45]
 
@@ -65,10 +65,10 @@ arm.set_state(0)
 time.sleep(1)
 
 variables = {}
-params = {'speed': 50, 'acc': 2000, 'angle_speed': 40, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
+params = {'speed': 80, 'acc': 2000, 'angle_speed': 80, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
 
 params['angle_acc'] = 1000
-params['angle_speed'] = 40
+params['angle_speed'] = 80
 
 # Register error/warn changed callback
 def error_warn_change_callback(data):
