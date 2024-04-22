@@ -119,10 +119,16 @@ def main():
     xarm_socket.start_txsocket()
     xarm_socket.start_rxsocket()
 
+    # safe_zone = [
+    #     (0.3, -0.3, 0.3), # back left bottom 
+    #     (0.6, 0.3, 0.625) # front right top
+    #                     ]
+
     safe_zone = [
-        (0.3, -0.3, 0.3), # back left bottom 
-        (0.6, 0.3, 0.625) # front right top
+        (-0.3, -0.3, 0.3), # back left bottom 
+        (0.6, 0.3, 1.0) # front right top
                         ]
+
 
     max_range = 0.7
     min_range = 0.3
@@ -309,7 +315,7 @@ def main():
                 # cube = world.scene.get_object("target")
                 pos, qrot = cube.get_world_pose()
 
-                a = 0.99
+                a = 1.0 #0.99
                 b = 1.0-a
 
                 # idle = [0.01*np.sin(current_time*5), 0.01*np.sin(current_time*4.75), 0]
