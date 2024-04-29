@@ -119,23 +119,18 @@ def main():
     xarm_socket.start_txsocket()
     xarm_socket.start_rxsocket()
 
-    # safe_zone = [
-    #     (0.3, -0.3, 0.3), # back left bottom 
-    #     (0.6, 0.3, 0.625) # front right top
-    #                     ]
-
     safe_zone = [
-        (-0.3, -0.3, 0.3), # back left bottom 
+        (-0.6, -0.3, 0.1), # back left bottom 
         (0.6, 0.3, 1.0) # front right top
                         ]
 
+    relax_back = True
 
     max_range = 0.7
     min_range = 0.3
     min_height = 0.1
 
     # set maximum angle movement here
-
     last_face_seen_timeout = 0.5 # 1
     last_face_seen_time = 0 
 
@@ -146,11 +141,7 @@ def main():
         np.random.uniform(-0.2, 0.2),
         np.random.uniform(-0.2, 0.2)
     ]
-
-    # safe_zone = [
-    #     (0.2, -0.4, 0.1), # back left bottom 
-    #     (0.6, 0.4, 0.625) # front right top
-    #      
+ 
     last_rand_target_timeout = 5
     last_rand_target_time = 0 
 
@@ -250,7 +241,6 @@ def main():
                 newrot = get_new_target_orientation2(newpose_r)
                 # newrot = get_new_target_orientation(newpose_r)
 
-
                 # limits based on minimum and maximum range and elevation
                 range = np.linalg.norm(newpose_r)
                 if range < min_range:
@@ -315,7 +305,10 @@ def main():
                 # cube = world.scene.get_object("target")
                 pos, qrot = cube.get_world_pose()
 
-                a = 1.0 #0.99
+                if relax_back:
+                    a = 0.99
+                else: 
+                    a = 1.0 #0.99
                 b = 1.0-a
 
                 # idle = [0.01*np.sin(current_time*5), 0.01*np.sin(current_time*4.75), 0]
@@ -354,7 +347,6 @@ def main():
                 # cube.set_world_pose(np.array(newpose), np.array(updated_quaternion))
 
                 cube.set_world_pose(np.array(newpose), np.array(newrot))
-                
 
         xarm_socket.cam_to_nose=None
         xarm_socket.face_direction=None

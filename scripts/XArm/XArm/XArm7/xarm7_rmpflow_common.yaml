@@ -34,7 +34,7 @@ rmp_params:
         accel_potential_exploder_eps: 1e-2
     joint_velocity_cap_rmp:
         max_velocity: 2. # 1. # 4.  # max_xd
-        velocity_damping_region: 1.0 # 2.0
+        velocity_damping_region: 0.75 #1.0 # 2.0
         damping_gain: 1000.0
         metric_weight: 100. # metric_scalar
     target_rmp:
@@ -79,16 +79,25 @@ canonical_resolve:
     projection_tolerance: .01
     verbose: false
 
+#       pt1: [0,0,.333]
+
 body_cylinders:
     - name: base_stem
-      pt1: [0,0,.333]
+      pt1: [0,0,.4]
       pt2: [0,0,0.]
       radius: .05
 
 # Each arm is approx. 1m from (arm) base to gripper center.
 # .1661 between links (approx .15)
+
+# IDEAS 2024 radius was 0.05, switching to 0.15
+# link 5, link 5
+# https://docs.omniverse.nvidia.com/isaacsim/latest/advanced_tutorials/tutorial_configure_rmpflow_denso.html
+
 body_collision_controllers:
     - name: link7
-      radius: .05
-    - name: link5
-      radius: .05
+      radius: .10
+    # - name: link1
+    #   radius: .10
+    # - name: link5
+    #   radius: .05

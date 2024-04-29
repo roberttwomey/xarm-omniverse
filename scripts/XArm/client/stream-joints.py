@@ -97,6 +97,9 @@ try:
         
         if arm.connected and arm.state != 4:
             arm.set_servo_angle_j(joints, is_radian=True)
+
+        if params['quit']:
+            break
         
         # print("moved to", joints_deg)
         
