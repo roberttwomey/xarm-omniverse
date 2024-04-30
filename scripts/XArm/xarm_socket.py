@@ -134,10 +134,13 @@ class XArmSocket():
                         self.face_direction = None
                     
                     if thistype == "pos":
-                        x, y, z = thispayload
-                        self.dx = x
-                        self.dy = y
-                        self.dz = z
+                        dx, dy, dz, y, p, r = thispayload
+                        self.dx = dx
+                        self.dy = dy
+                        self.dz = dz
+                        self.rx = y
+                        self.ry = p
+                        self.rz = r
 
     def shut_down_socket(self):
         if self.txconn:

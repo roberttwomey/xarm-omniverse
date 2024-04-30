@@ -99,5 +99,5 @@ body_collision_controllers:
       radius: .10
     # - name: link1
     #   radius: .10
-    # - name: link5
-    #   radius: .05
+    - name: link5
+      radius: .10

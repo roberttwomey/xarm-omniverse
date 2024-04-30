@@ -80,6 +80,8 @@ def close_socket(thissocket):
         pass
     print("socket is closed")
 
+first_move = True
+
 try:
     while True:
         data = mysocket.recv(1024)
@@ -96,7 +98,16 @@ try:
         joints_deg = [math.degrees(joint) for joint in joints]
         
         if arm.connected and arm.state != 4:
-            arm.set_servo_angle_j(joints, is_radian=True)
+            if first_move:
+                arm.set_mode(0)
+                arm.set_state(state=0)
+                arm.set_servo_angle(angle=joints, is_radian=True, wait=True)
+                first_move = False
+                arm.set_mode(1)
+                arm.set_state(0)
+                time.sleep(0.1)
+            else:
+                arm.set_servo_angle_j(joints, is_radian=True)
 
         if params['quit']:
             break
@@ -108,6 +119,20 @@ except KeyboardInterrupt:
     close_socket(mysocket)
 
 print("Isaac Sim Connection Stopped")
+
+# print("going home")
+# params = {'speed': 50, 'acc': 2000, 'angle_speed': 20, 'angle_acc': 500, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
+# params['angle_acc'] = 50
+# params['angle_speed'] = 1000
+# frontBackAngle = [0.0,-45.0,0.0,0.0,0.0,-45.0,179.0]
+# frontForwardAngle = [0, 2.5, 0, 37.3, 0, -57.3, 179.0]
+# omniStartAngle = [112.1, -81.0, -77.8, 33.7, 14.9, -79.3, 90.9]
+# arm.motion_enable(True)
+# arm.set_mode(0)
+# arm.set_state(0)
+# time.sleep(1)
+# code = arm.set_servo_angle(angle=frontForwardAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
+
 
 if hasattr(arm, 'release_count_changed_callback'):
     arm.release_count_changed_callback(count_changed_callback)

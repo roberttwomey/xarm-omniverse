@@ -344,8 +344,17 @@ def main():
                 # cube.set_world_pose(np.array(newpose), np.array(updated_quaternion))
 
                 cube.set_world_pose(np.array(newpose), np.array(newrot))
-            elif xarm_socket.thistype == "pose":
-                print("sent pos")
+            elif xarm_socket.thistype == "pos":
+                # print("sent pos")
+
+                rx_rad = np.deg2rad(xarm_socket.rx)
+                ry_rad = np.deg2rad(xarm_socket.ry)
+                rz_rad = np.deg2rad(xarm_socket.rz)
+
+                newrot = get_quaternion_from_euler(ry_rad, rx_rad, rz_rad)
+                newpose = [xarm_socket.dy, xarm_socket.dx, xarm_socket.dz]
+                cube.set_world_pose(np.array(newpose), np.array(newrot))
+
 
         xarm_socket.cam_to_nose=None
         xarm_socket.face_direction=None
