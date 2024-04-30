@@ -19,8 +19,8 @@ if (len(sys.argv) > 1):
 if bSocket:
 	# open socket to omniverse machine
 	mysocket = socket.socket()
-	mysocket.connect(('192.168.4.5',12346)) # easybake
-	# mysocket.connect(('127.0.0.1',12346))
+	# mysocket.connect(('192.168.4.5',12346)) # easybake
+	mysocket.connect(('127.0.0.1',12346))
 
 
 def close_socket(thissocket):
@@ -44,6 +44,8 @@ drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 cap = cv2.VideoCapture(0)
 # cap = cv2.VideoCapture(1)
 
+cv2.namedWindow('Head Pose Estimation', flags=cv2.WINDOW_GUI_NORMAL)
+
 count = 0
 try: 
 	while cap.isOpened():
@@ -51,10 +53,11 @@ try:
 
 		start = time.time()
 
-		image = cv2.cvtColor(cv2.flip(image, -1), cv2.COLOR_BGR2RGB)
+		# upside down
+		# image = cv2.cvtColor(cv2.flip(image, -1), cv2.COLOR_BGR2RGB)
 
-		# razer kyo pro
-		# image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
+		# razer kyo pro - right side up
+		image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
 
 		# improve performance
 		image.flags.writeable = False
@@ -81,7 +84,7 @@ try:
 					if idx == 33 or idx == 263 or idx == 1 or idx == 61 or idx == 291 or idx == 199:
 						if idx == 1:
 							nose_2d = (lm.x * img_w, lm.y * img_h)
-							nose_norm = (lm.x, lm.y)
+							nose_norm = (lm.x, lm.y, lm.z)
 							nose_3d = (lm.x * img_w, lm.y * img_h, lm.z * 3000)
 
 						x, y = int(lm.x * img_w), int(lm.y * img_h)
@@ -113,13 +116,16 @@ try:
 				# solve PnP
 				success, rot_vec, trans_vec = cv2.solvePnP(face_3d, face_2d, cam_matrix, dist_matrix)
 
-				# print(rot_vec, trans_vec)
+				# print("rot vec: ", rot_vec, "\ntrans vec: ", trans_vec)
+				#print("nose_3d", nose_3d)
 
 				# get rotatinal matrix
 				rmat, jac = cv2.Rodrigues(rot_vec)
 
-				# get angles
+				# sget angles
 				angles, mtxR, mtxQ, Qx, Qy, Qz = cv2.RQDecomp3x3(rmat)
+
+				# print("Q: ", Qx, Qy, Qz)
 
 				# get the y rotation degree
 				x_rot = angles[0] * 360
@@ -140,6 +146,12 @@ try:
 
 				# display the nose direction
 				nose_3d_projection, jacobian = cv2.projectPoints(nose_3d, rot_vec, trans_vec, cam_matrix, dist_matrix)
+				# print("nose 3d proj:", nose_3d_projection)
+				# print("Xr Yr Zr", x_rot, y_rot, z_rot)
+
+				# compute world xyz pose of object
+				# https://stackoverflow.com/questions/12299870/computing-x-y-coordinate-3d-from-image-point
+
 
 				p1 = (int(nose_2d[0]), int(nose_2d[1]))
 				p2 = (int(nose_2d[0] + y_rot * 10), int(nose_2d[1] - x_rot * 10))
@@ -147,17 +159,24 @@ try:
 				cv2.line(image, p1, p2, (255, 0, 0), 3)
 				
 				# add the text on the image
-				cv2.putText(image, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "x_rot: "+str(np.round(x_rot, 2)), (500, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "y_rot: "+str(np.round(y_rot, 2)), (500, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "z_rot: "+str(np.round(z_rot, 2)), (500, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				xdiff = 0.5-nose_norm[0]
-				ydiff = 0.5-nose_norm[1]
+				# scale = 0.01 # this value can be from 0 to 1 (0,1] to change the size of the text relative to the image
+				# fontScale = min(img_w, img_h)/(25/scale)
+				fontScale = 0.8
+				cv2.putText(image, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
+				cv2.putText(image, "x_rot: "+str(np.round(x_rot, 2)), (400, 50), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
+				cv2.putText(image, "y_rot: "+str(np.round(y_rot, 2)), (400, 100), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
+				cv2.putText(image, "z_rot: "+str(np.round(z_rot, 2)), (400, 150), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
+				xdiff = nose_norm[0]-0.5
+				ydiff = nose_norm[1]-0.5
 				# zdist = 0.030 - ((400.0 + nose_3d[2])/10000.0) # arbitrary offset
-				zdiff = nose_3d[2]/10000.0 + 0.01
-				cv2.putText(image, "xdiff: "+str(np.round(xdiff, 3)), (500, 200), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "ydiff: "+str(np.round(ydiff, 3)), (500, 250), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-				cv2.putText(image, "zdiff: "+str(np.round(zdiff, 3)), (500, 300), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+				# zdiff = 4*(15*nose_3d[2]/10000.0 + 0.01 + 0.35) # simple-face
+				zdiff = 4*(15*nose_3d[2]/10000.0 + 0.01 + 0.35)-0.7 # INCOSE IW 2024
+				# if (zdiff < 0):
+					# print(zdiff)
+					# zdiff = 0
+				cv2.putText(image, "xdiff: "+str(np.round(xdiff, 3)), (400, 200), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
+				cv2.putText(image, "ydiff: "+str(np.round(ydiff, 3)), (400, 250), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
+				cv2.putText(image, "zdiff: "+str(np.round(zdiff, 3)), (400, 300), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 
 			end = time.time()
 			totalTime = end-start
@@ -165,7 +184,7 @@ try:
 			fps = 1/totalTime
 			# print("FPS: ", fps)
 
-			cv2.putText(image, f'FPS: {int(fps)}', (20, 450), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+			cv2.putText(image, f'FPS: {int(fps)}', (20, 450), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 255, 0), 2)
 
 			mp_drawing.draw_landmarks(
 				image=image,
@@ -178,9 +197,10 @@ try:
 				try:
 					count += 1
 					if count % 3 == 0:
-						print("sending:", [x_rot, y_rot, z_rot, xdiff, ydiff, zdiff])
+						print("sending:", ["face", [x_rot, y_rot*1.0, z_rot, xdiff, ydiff, zdiff]])
 						count = 0
-					sendData = str([x_rot, y_rot, z_rot, xdiff, ydiff, zdiff])
+					# sendData = str([x_rot, y_rot*-1.0, z_rot, xdiff, ydiff, zdiff])
+					sendData = str(["face", [x_rot, y_rot*-1.0, z_rot, xdiff, ydiff, zdiff]])
 					mysocket.send(sendData.encode())
 				except:
 					pass

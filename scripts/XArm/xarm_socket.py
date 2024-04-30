@@ -21,6 +21,7 @@ class XArmSocket():
         self.rx = None
         self.ry = None
         self.rz = None
+        self.thistype = "relax"
 
 
         # threads
@@ -106,25 +107,37 @@ class XArmSocket():
                     # RGB Camera
                     message = data.decode()
                     # print("received:", type(message), message)
-                    y, p, r, dx, dy, dz = ast.literal_eval(message)
-                    # print("received:", x, y, z, dx, dy)
-                    weight = 0.3  # 0.05
-                    self.dx = weight*dx
-                    self.dy = weight*dy
-                    self.dz = weight*dz
-                    # self.dx = dx
-                    # self.dy = dy
-                    # self.dz = dz
+                    try:
+                        thistype, thispayload = ast.literal_eval(message)
+                        self.thistype = thistype
+                    except:
+                        print("rx: problem with data", message)
+                        continue
+                    
+                    if thistype not in ["face", "relax", "rand", "pos"]:
+                        print("rx: unknown command", thistype)
+                        continue
 
-                    self.rx = y
-                    self.ry = p
-                    self.rz = r
-                    # self.dx = dx
-                    # self.dy = dy
-                    self.face_direction = [y, p, r]
-                else:
-                    self.face_direction = None
+                    if thistype == "face":
+                        y, p, r, dx, dy, dz = thispayload
+                        # print("received:", x, y, z, dx, dy)
+                        weight = 0.3  # 0.05
+                        self.dx = weight*dx
+                        self.dy = weight*dy
+                        self.dz = weight*dz
 
+                        self.rx = y
+                        self.ry = p
+                        self.rz = r
+                        self.face_direction = [y, p, r]
+                    else:
+                        self.face_direction = None
+                    
+                    if thistype == "pos":
+                        x, y, z = thispayload
+                        self.dx = x
+                        self.dy = y
+                        self.dz = z
 
     def shut_down_socket(self):
         if self.txconn:

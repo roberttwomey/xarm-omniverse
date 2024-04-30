@@ -195,7 +195,7 @@ def main():
 
             current_time = time.time()
 
-            if xarm_socket.face_direction:
+            if xarm_socket.thistype == "face" and xarm_socket.face_direction:
                 # update position of target from camera feed            
                 # cube = world.scene.get_object("target")
                 pos, qrot = cube.get_world_pose()
@@ -272,7 +272,7 @@ def main():
             #     current_time > last_rand_target_time + last_rand_target_timeout \
             #     ) and current_time > last_face_seen_time + last_face_seen_timeout:
 
-            elif rand_target_enabled and ( \
+            elif xarm_socket.thistype == "rand" and rand_target_enabled and ( \
                 xarm_task.task_achieved or \
                 current_time > last_rand_target_time + last_rand_target_timeout \
                 ) and current_time > last_face_seen_time + last_face_seen_timeout:
@@ -300,15 +300,12 @@ def main():
 
                 last_rand_target_time = time.time()
 
-            elif current_time > last_face_seen_time + last_face_seen_timeout:
+            elif xarm_socket.thistype == "relax" and current_time > last_face_seen_time + last_face_seen_timeout:
                 # relax back to center
                 # cube = world.scene.get_object("target")
                 pos, qrot = cube.get_world_pose()
 
-                if relax_back:
-                    a = 0.99
-                else: 
-                    a = 1.0 #0.99
+                a = 0.99
                 b = 1.0-a
 
                 # idle = [0.01*np.sin(current_time*5), 0.01*np.sin(current_time*4.75), 0]
@@ -347,6 +344,8 @@ def main():
                 # cube.set_world_pose(np.array(newpose), np.array(updated_quaternion))
 
                 cube.set_world_pose(np.array(newpose), np.array(newrot))
+            elif xarm_socket.thistype == "pose":
+                print("sent pos")
 
         xarm_socket.cam_to_nose=None
         xarm_socket.face_direction=None
