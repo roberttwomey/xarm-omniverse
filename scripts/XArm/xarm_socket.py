@@ -114,7 +114,7 @@ class XArmSocket():
                         print("rx: problem with data", message)
                         continue
                     
-                    if thistype not in ["face", "relax", "rand", "pos"]:
+                    if thistype not in ["face", "relax", "rand", "pos", "reset"]:
                         print("rx: unknown command", thistype)
                         continue
 

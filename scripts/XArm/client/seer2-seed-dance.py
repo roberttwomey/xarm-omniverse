@@ -85,7 +85,7 @@ try:
 				
 				time.sleep(0.1)
 				if time_elapsed > time_descend:
-					starttime = time.time()
+					break
 		except KeyboardInterrupt:
 			print("time ", time_elapsed)
 			key = input("pause. enter to continue")

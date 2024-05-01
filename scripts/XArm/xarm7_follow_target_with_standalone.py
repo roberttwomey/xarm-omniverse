@@ -354,7 +354,9 @@ def main():
                 newrot = get_quaternion_from_euler(ry_rad, rx_rad, rz_rad)
                 newpose = [xarm_socket.dy, xarm_socket.dx, xarm_socket.dz]
                 cube.set_world_pose(np.array(newpose), np.array(newrot))
-
+            elif xarm_socket.thistype == "reset":
+                world.reset()
+                xarm_socket.thistype = None
 
         xarm_socket.cam_to_nose=None
         xarm_socket.face_direction=None
