@@ -127,12 +127,15 @@ try:
         # print(message)
         try: 
             joints = eval(message)
+            # print(joints)
         except:
             continue
         
-        # print(joints)
+        # get requested angle in degrees
+        
         joints_deg = [math.degrees(joint) for joint in joints]
         
+        # get current angle
         curr = arm.get_servo_angle(is_radian=False)    
         joint_diff = np.subtract(joints_deg, curr[1])
 

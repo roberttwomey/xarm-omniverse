@@ -44,10 +44,11 @@ try:
 	while True:
 		if bSocket:
 			try:
+				if first_pos:
+					_ = input("press enter to start...")
+					first_pos = False
+
 				time_elapsed = starttime - time.time()
-				# sendData = str(["pos", [
-				# 	radius*math.sin(time_elapsed % (2*math.pi)), radius*math.cos(time_elapsed % (2*math.pi)), 0.34, 
-				# 	0., 0., 0.]])
 
 				ypos = 0.39+0.1*math.sin((0.5*time_elapsed % (2*math.pi))-math.pi)
 				xpos = 0.0
@@ -56,10 +57,6 @@ try:
 					xpos, ypos, zpos, 
 					90., 0., 0.]])
 				
-				if first_pos:
-					thisjuk = input("type to start")
-					first_pos = False
-
 				mysocket.send(sendData.encode())
 			except:
 				pass
@@ -67,12 +64,14 @@ try:
 			time.sleep(0.1)
 
 except KeyboardInterrupt:
-	print("quitting")
+	print("quitting. relax to home...", end="")
+
 
 for _ in range(100):
 	sendData = str(["relax", []])
 	mysocket.send(sendData.encode())
 	time.sleep(0.1)
+print("done.")
 
 if bSocket:
 	close_socket(mysocket)
