@@ -88,8 +88,15 @@ try:
 					starttime = time.time()
 		except KeyboardInterrupt:
 			print("time ", time_elapsed)
-			input("pause. enter to continue")
-			starttime = time.time() - time_elapsed
+			key = input("pause. enter to continue")
+			if key == "\n": 
+				starttime = time.time() - time_elapsed
+			elif key == "u":
+				starttime = time.time() - time_ascend + 20.0
+			elif key == "d":
+				starttime = time.time() - time_descend + 20.0
+			elif key == "?":
+				print("U for up, D for down, ENTER to continue")
 			print("new time ", time.time()-starttime)
 except KeyboardInterrupt:
 	print("quitting")
