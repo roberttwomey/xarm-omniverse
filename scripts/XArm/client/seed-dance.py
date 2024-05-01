@@ -39,6 +39,8 @@ first_pos = True
 time_ascend = 3.0*60.0
 time_descend = 5.0*60.0
 
+count = 0
+
 try: 
 	while True:
 		try:
@@ -48,19 +50,31 @@ try:
 					# sendData = str(["pos", [
 					# 	radius*math.sin(time_elapsed % (2*math.pi)), radius*math.cos(time_elapsed % (2*math.pi)), 0.34, 
 					# 	0., 0., 0.]])
-
+					
+					if time_elapsed < time_ascend:
+						zpos = 0.3 + (0.7*time_elapsed/time_ascend)
+						if time_elapsed < 0.4 * time_ascend:
+							radius = 0.3 + (0.3*time_elapsed/(0.4*time_ascend))
+						else:
+							radius = 0.3 + (0.3*(time_ascend-time_elapsed)/(0.6*time_ascend))
+					else:
+						zpos = 0.3 + (0.7*(time_descend - time_elapsed)/120.0)
+						
+					# zpos = 0.55 + 0.25 * math.sin((0.05*time_elapsed % (2*math.pi))-math.pi)
+					
 					xpos = radius*math.sin((0.1*time_elapsed % (2*math.pi))-math.pi)
 					ypos = radius*math.cos((0.1*time_elapsed % (2*math.pi))-math.pi)
-
-					if time_elapsed < time_ascend:
-						zpos = 0.3 + time_elapsed/180.0 * 0.3
-					else:
-						zpos = 0.3 + (time_descend - time_elapsed)/120.0 * 0.3
-					# zpos = 0.55 + 0.25 * math.sin((0.05*time_elapsed % (2*math.pi))-math.pi)
+					
 					sendData = str(["pos", [
 						xpos, ypos, zpos, 
 						0., 0., 0.]])
 					
+					# count+=1
+					# if count % 10 == 0:
+					# 	print(f"{time_elapsed} sec: {sendData}")
+
+					print(f"{time_elapsed} sec: {sendData}")
+
 					if first_pos:
 						thisjuk = input("type to start")
 						first_pos = False
@@ -79,6 +93,13 @@ try:
 			print("new time ", time.time()-starttime)
 except KeyboardInterrupt:
 	print("quitting")
+
+# relax back to home
+# for _ in range(100):
+# 	sendData = str(["relax", []])
+# 	mysocket.send(sendData.encode())
+# 	time.sleep(0.1)
+# print("done.")
 
 if bSocket:
 	close_socket(mysocket)

@@ -40,7 +40,7 @@ time.sleep(0.1)
 # frontForwardAngle = [0, 2.5, 0, 37.3, 0, -57.3, -179.0]
 # omniStartAngle = [0, 2.5, 0, 37.3, 0, -57.3, -179.0]
 omniStartAngle = [-6.838786670630505, -15.210568319335351, 6.733042535674014, 37.296668019488585, 179.41233553276842, 37.60242485277879, 2.225478402831139]
-XARM_MAX_JOINT_SPEED = 180.0 #45.0#180.0 # deg/sec
+XARM_MAX_JOINT_SPEED = 45.0#180.0 # deg/sec
 
 variables = {}
 params = {'speed': 100, 'acc': 2000, 'angle_speed':100, 'angle_acc': 1000, 'events': {}, 'variables': variables, 'callback_in_thread': True, 'quit': False}
@@ -135,9 +135,11 @@ try:
         
         joints_deg = [math.degrees(joint) for joint in joints]
         
-        # get current angle
-        curr = arm.get_servo_angle(is_radian=False)    
-        joint_diff = np.subtract(joints_deg, curr[1])
+        # get current joint angles
+        _, curr_joints_deg = arm.get_servo_angle(is_radian=False)
+        _, curr_joints_rad = arm.get_servo_angle(is_radian=True)
+
+        joint_diff = np.subtract(joints_deg, curr_joints_deg)
 
         # cap largest joint movement to xarm max angle speed
         
@@ -149,25 +151,28 @@ try:
         # print("max", this_max_joint_speed)
 
         if abs(this_max_joint_speed) > XARM_MAX_JOINT_SPEED:
-            # print(joint_diff)
+            print("rate limiting: max", this_max_joint_speed)
+            # print("joint diff: ", joint_diff)
             joint_diff = np.multiply(joint_diff, (XARM_MAX_JOINT_SPEED/abs(this_max_joint_speed)))
+            joint_diff_rad = [math.radians(joint) for joint in joint_diff]
             # print("limited: ", joint_diff)
         
         # joint_diff = [np.clip(a - b, -0.1, 0.1) for a, b in zip(joints_deg, curr[1])]
 
-        new_joints_deg = [a+b for a, b in zip(joint_diff, joints_deg)]
-        new_joints = [math.radians(joint) for joint in new_joints_deg]
-        # print(joint_diff)
+        new_joints_deg = [a+b for a, b in zip(joint_diff, curr_joints_deg)]
+        new_joints_rad = [math.radians(joint) for joint in new_joints_deg]
+        # print("new joints: ", new_joints)
 
         if arm.connected and arm.state != 4:
             # code = arm.set_servo_angle_j(joints, is_radian=True)
-            code = arm.set_servo_angle_j(new_joints, is_radian=True)
+            code = arm.set_servo_angle_j(new_joints_rad, is_radian=True)
+            # print(f"\tcurr joints rad: {curr_joints_rad}\n\trequested: {joints}\n\tnew joints: {new_joints_rad}\n\tjoint diff(rad): {joint_diff_rad}")
             
-        count = count + 1
-        if count %10 == 0:
-            print("moved to", new_joints)
+        count+=1
+        if count %100 == 0:
             rate = (time.time()-last_rate)/10.0
-            print("----> ",1.0/rate, "hertz")
+            print(f"moved to {new_joints_rad} ----> {1.0/rate} hertz")
+            count = 0
             last_rate=time.time()
 
         last_time = time.time()
