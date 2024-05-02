@@ -67,7 +67,7 @@ except KeyboardInterrupt:
 	print("quitting. relax to home...", end="")
 
 
-for _ in range(100):
+for _ in range(40):
 	sendData = str(["relax", []])
 	mysocket.send(sendData.encode())
 	time.sleep(0.1)

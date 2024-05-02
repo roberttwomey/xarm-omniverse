@@ -51,6 +51,36 @@
 </details>
 
 
+# QI IDEAS Performance 2023
+
+## Startup
+
+### 1. Run Isaac
+
+```bash
+cd work/xarm-omniverse
+run_isaac.sh
+```
+
+### 2. Run Joint Streaming
+
+```bash
+cd work/xarm-omniverse
+run_joints.sh
+```
+
+### 3. Run Appropriate Section of Program
+
+```bash
+cd work/xarm-omniverse/scripts/XArm/client/
+python seer-face-relax.py
+```
+
+## Dev Notes
+
+[TK]
+
+
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
