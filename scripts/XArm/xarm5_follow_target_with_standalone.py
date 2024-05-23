@@ -120,16 +120,17 @@ def main():
     xarm_socket.start_rxsocket()
 
     safe_zone = [
-        (0.3, -0.3, 0.3), # back left bottom 
-        (0.6, 0.3, 0.625) # front right top
+        (-0.6, -0.3, 0.1), # back left bottom 
+        (0.6, 0.3, 1.0) # front right top
                         ]
+
+    relax_back = True
 
     max_range = 0.7
     min_range = 0.3
     min_height = 0.1
 
     # set maximum angle movement here
-
     last_face_seen_timeout = 0.5 # 1
     last_face_seen_time = 0 
 
@@ -140,11 +141,7 @@ def main():
         np.random.uniform(-0.2, 0.2),
         np.random.uniform(-0.2, 0.2)
     ]
-
-    # safe_zone = [
-    #     (0.2, -0.4, 0.1), # back left bottom 
-    #     (0.6, 0.4, 0.625) # front right top
-    #      
+ 
     last_rand_target_timeout = 5
     last_rand_target_time = 0 
 
@@ -198,7 +195,7 @@ def main():
 
             current_time = time.time()
 
-            if xarm_socket.face_direction:
+            if xarm_socket.thistype == "face" and xarm_socket.face_direction:
                 # update position of target from camera feed            
                 # cube = world.scene.get_object("target")
                 pos, qrot = cube.get_world_pose()
@@ -244,7 +241,6 @@ def main():
                 newrot = get_new_target_orientation2(newpose_r)
                 # newrot = get_new_target_orientation(newpose_r)
 
-
                 # limits based on minimum and maximum range and elevation
                 range = np.linalg.norm(newpose_r)
                 if range < min_range:
@@ -276,7 +272,7 @@ def main():
             #     current_time > last_rand_target_time + last_rand_target_timeout \
             #     ) and current_time > last_face_seen_time + last_face_seen_timeout:
 
-            elif rand_target_enabled and ( \
+            elif xarm_socket.thistype == "rand" and rand_target_enabled and ( \
                 xarm_task.task_achieved or \
                 current_time > last_rand_target_time + last_rand_target_timeout \
                 ) and current_time > last_face_seen_time + last_face_seen_timeout:
@@ -304,7 +300,7 @@ def main():
 
                 last_rand_target_time = time.time()
 
-            elif current_time > last_face_seen_time + last_face_seen_timeout:
+            elif xarm_socket.thistype == "relax" and current_time > last_face_seen_time + last_face_seen_timeout:
                 # relax back to center
                 # cube = world.scene.get_object("target")
                 pos, qrot = cube.get_world_pose()
@@ -319,11 +315,9 @@ def main():
                     #     np.random.uniform(-0.1, 0.1),
                     #     np.random.uniform(-0.1, 0.1)
                     # ]
-                    idle = [
-                        0, 
-                        0,
-                        0
-                    ]
+
+                    idle = [0, 0, 0]
+                    
                     last_nudge = time.time()
                     nudge_timeout = np.random.uniform(2.0, 6.0)
 
@@ -350,7 +344,37 @@ def main():
                 # cube.set_world_pose(np.array(newpose), np.array(updated_quaternion))
 
                 cube.set_world_pose(np.array(newpose), np.array(newrot))
-                
+            elif xarm_socket.thistype == "pos":
+                # print("sent pos")
+
+                rx_rad = np.deg2rad(xarm_socket.rx)
+                ry_rad = np.deg2rad(xarm_socket.ry)
+                rz_rad = np.deg2rad(xarm_socket.rz)
+
+                newrot = get_quaternion_from_euler(ry_rad, rx_rad, rz_rad)
+                newpose = [xarm_socket.dy, xarm_socket.dx, xarm_socket.dz]
+                cube.set_world_pose(np.array(newpose), np.array(newrot))
+            elif xarm_socket.thistype == "wrist":
+                pos, qrot = cube.get_world_pose()
+                local_wrist_pos = [xarm_socket.px, xarm_socket.py, xarm_socket.pz]
+
+                a = 0.9
+                b = 1.0-a
+
+                newpose = [ 
+                    a*pos[0]+b*local_wrist_pos[0], 
+                    a*pos[1]+b*local_wrist_pos[1],
+                    a*pos[2]+b*local_wrist_pos[2]
+                    ]
+                cube.set_world_pose(np.array(newpose))
+                # xarm_socket.px = None
+                # xarm_socket.py = None
+                # xarm_socket.pz = None
+                last_face_seen_time = current_time
+
+            elif xarm_socket.thistype == "reset":
+                world.reset()
+                xarm_socket.thistype = None
 
         xarm_socket.cam_to_nose=None
         xarm_socket.face_direction=None
@@ -359,11 +383,6 @@ def main():
     # print(cube.get_world_pose())
 
     xarm_socket.shut_down_socket()
-    simulation_app.close()
-
-
-if __name__ == '__main__':
-    main()
     simulation_app.close()
 
 

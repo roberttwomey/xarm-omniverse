@@ -354,6 +354,24 @@ def main():
                 newrot = get_quaternion_from_euler(ry_rad, rx_rad, rz_rad)
                 newpose = [xarm_socket.dy, xarm_socket.dx, xarm_socket.dz]
                 cube.set_world_pose(np.array(newpose), np.array(newrot))
+            elif xarm_socket.thistype == "wrist":
+                pos, qrot = cube.get_world_pose()
+                local_wrist_pos = [xarm_socket.px, xarm_socket.py, xarm_socket.pz]
+
+                a = 0.9
+                b = 1.0-a
+
+                newpose = [ 
+                    a*pos[0]+b*local_wrist_pos[0], 
+                    a*pos[1]+b*local_wrist_pos[1],
+                    a*pos[2]+b*local_wrist_pos[2]
+                    ]
+                cube.set_world_pose(np.array(newpose))
+                # xarm_socket.px = None
+                # xarm_socket.py = None
+                # xarm_socket.pz = None
+                last_face_seen_time = current_time
+
             elif xarm_socket.thistype == "reset":
                 world.reset()
                 xarm_socket.thistype = None

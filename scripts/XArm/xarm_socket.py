@@ -21,6 +21,9 @@ class XArmSocket():
         self.rx = None
         self.ry = None
         self.rz = None
+        self.px = None
+        self.py = None
+        self.pz = None
         self.thistype = "relax"
 
 
@@ -114,7 +117,7 @@ class XArmSocket():
                         print("rx: problem with data", message)
                         continue
                     
-                    if thistype not in ["face", "relax", "rand", "pos", "reset"]:
+                    if thistype not in ["face", "relax", "rand", "pos", "reset", "wrist"]:
                         print("rx: unknown command", thistype)
                         continue
 
@@ -141,6 +144,25 @@ class XArmSocket():
                         self.rx = y
                         self.ry = p
                         self.rz = r
+                    if thistype == "wrist":
+                        px, py, pz = thispayload
+                        # print("received:", x, y, z, dx, dy)
+                        weight = 0.9  # 0.05
+                        # self.dx = weight*dx
+                        # self.dy = weight*dy
+                        # self.dz = weight*dz
+                        self.px = px + 0.15
+                        self.py = py 
+                        self.pz = pz + 0.6
+
+                        # self.rx = y
+                        # self.ry = p
+                        # self.rz = r
+                        # self.dx = dx
+                        # self.dy = dy
+                        self.wrist_position = [px, py, pz]
+                    else:
+                        self.wrist_position = None
 
     def shut_down_socket(self):
         if self.txconn:
