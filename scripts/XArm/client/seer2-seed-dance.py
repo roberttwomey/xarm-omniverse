@@ -58,7 +58,8 @@ try:
 						else:
 							radius = 0.3 + (0.3*(time_ascend-time_elapsed)/(0.6*time_ascend))
 					else:
-						zpos = 0.3 + (0.7*(time_descend - time_elapsed)/120.0)
+						zpos = 0.3 + (0.7*(time_descend - time_elapsed)/(120.0))
+						radius = 0.3 + (0.3 * (time_descend-time_elapsed)/(time_descend-time_ascend))
 						
 					# zpos = 0.55 + 0.25 * math.sin((0.05*time_elapsed % (2*math.pi))-math.pi)
 					
@@ -84,7 +85,7 @@ try:
 					pass
 				
 				time.sleep(0.1)
-				if time_elapsed > time_descend:
+				if time_elapsed > time_descend-5.0:
 					break
 		except KeyboardInterrupt:
 			print("time ", time_elapsed)

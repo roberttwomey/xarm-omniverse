@@ -190,8 +190,8 @@ arm.set_state(0)
 time.sleep(0.1)
 
 homeAngle = [0., 0., 0., 0., 0., 0., 0.]
-code = arm.set_servo_angle(angle=homeAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
-# code = arm.set_servo_angle(angle=omniStartAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
+# code = arm.set_servo_angle(angle=homeAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
+code = arm.set_servo_angle(angle=omniStartAngle, speed=params['angle_speed'], mvacc=params['angle_acc'], wait=True, radius=-1.0)
 
 if code != 0:
     print("Error moving to start position")
