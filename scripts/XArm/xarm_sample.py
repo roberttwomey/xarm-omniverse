@@ -47,6 +47,10 @@ class XArmSample(BaseSample):
             self._max_range = 0.7
             self._min_range = 0.3
             self._min_height = 0.1
+        elif self._xarm_version == 6:
+            self._max_range = 0.7
+            self._min_range = 0.3
+            self._min_height = 0.1
         elif self._xarm_version == 7:
             self._max_range = 0.7
             self._min_range = 0.3

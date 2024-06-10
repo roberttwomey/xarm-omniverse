@@ -26,6 +26,11 @@ class XArmRMPFlowController(mg.MotionPolicyController):
             relative_urdf_path = "/XArm/XArm5/xarm5.urdf"
             relative_rmpflow_config_path = "/XArm/XArm5/xarm5_rmpflow_common.yaml"
             end_effector_frame_name = "link5"
+        elif xarm_version == 6:
+            relative_robot_description_path = "/XArm/lite6/lite6_descriptor.yaml"
+            relative_urdf_path = "/XArm/lite6/lite6.urdf"
+            relative_rmpflow_config_path = "/XArm/lite6/lite6_rmpflow_common.yaml"
+            end_effector_frame_name = "link6"
         elif xarm_version == 7:
             relative_robot_description_path = "/XArm/XArm7/xarm7_descriptor.yaml"
             relative_urdf_path = "/XArm/XArm7/xarm7.urdf"

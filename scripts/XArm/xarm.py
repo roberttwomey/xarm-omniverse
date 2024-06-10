@@ -32,6 +32,9 @@ class XArm(Robot):
         if version == 5:
             relative_usd_path = "/XArm/XArm5/xarm5.usd"
             end_link = "/link5"
+        elif version == 6:
+            relative_usd_path = "/XArm/lite6/lite6.usd"
+            end_link = "/link6"
         elif version == 7:
             relative_usd_path = "/XArm/XArm7/xarm7.usd"
             end_link = "/link7"
