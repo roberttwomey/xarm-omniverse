@@ -358,7 +358,7 @@ def main():
                 pos, qrot = cube.get_world_pose()
                 local_wrist_pos = [xarm_socket.px, xarm_socket.py, xarm_socket.pz]
 
-                a = 0.9
+                a = 0.99
                 b = 1.0-a
 
                 newpose = [ 

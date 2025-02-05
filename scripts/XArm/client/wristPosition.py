@@ -49,7 +49,7 @@ def calculate_angle(a,b,c):
 
 
 
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 ## Setup mediapipe instance
 try:
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
@@ -101,7 +101,7 @@ try:
                             if count % 3 == 0:
                                 print("sending:", [wrist[2]*1, wrist[0]*1.0, wrist[1]*1])
                                 count = 0
-                            sendData = str(["wrist",[wrist[2]*1, wrist[0]*1.0, wrist[1]*1]])
+                            sendData = str(["wrist",[0.4, wrist[0]*1.5, wrist[1]*1+0.6]])
                             mysocket.send(sendData.encode())
                         except:
                             pass    
